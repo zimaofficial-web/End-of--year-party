@@ -235,7 +235,7 @@ test('"yes" ticket: code + QR shown; QR decodes to MIVAFEST1:<token> with the ga
     const d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
     return { w: d.width, h: d.height, data: Array.from(d.data) };
   });
-  const jsQR = require(join(ROOT, 'admin', 'vendor', 'jsQR.js'));
+  const jsQR = require(join(ROOT, 'admin', 'site', 'vendor', 'jsQR.js'));
   const decoded = jsQR(Uint8ClampedArray.from(img.data), img.w, img.h);
   assert.ok(decoded, 'QR could not be decoded');
   assert.equal(decoded.data, 'MIVAFEST1:' + TOKEN);

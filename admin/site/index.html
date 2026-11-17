@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Miva Fest Admin</title>
+<link rel="stylesheet" href="styles.css">
+<script src="config.js" defer></script>
+<script src="vendor/jsQR.js" defer></script>
+<script type="module" src="app.js"></script>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <p class="brand">Miva Fest <span>Admin</span></p>
+  <nav id="nav" aria-label="Admin sections" hidden>
+    <a href="#registrations" data-view="registrations">Registrations</a>
+    <a href="#gate" data-view="gate">Gate</a>
+    <a href="#admins" data-view="admins" data-super hidden>Admins</a>
+    <button type="button" id="logout" class="link-btn">Log out</button>
+  </nav>
+</header>
+
+<main id="main" tabindex="-1">
+  <p id="flash" class="flash" role="status" aria-live="polite" hidden></p>
+
+  <!-- Login -->
+  <section id="view-login" class="view" aria-labelledby="login-h" hidden>
+    <h1 id="login-h">Admin login</h1>
+    <form id="login-form" class="card" novalidate>
+      <label for="login-email">Email</label>
+      <input id="login-email" type="email" autocomplete="username" required maxlength="120">
+      <label for="login-password">Password</label>
+      <input id="login-password" type="password" autocomplete="current-password" required maxlength="200">
+      <button type="submit" id="login-btn">Log in</button>
+      <p id="login-msg" class="msg" role="alert"></p>
+    </form>
+    <p class="hint">Accounts are created by the super admin. There is no sign-up.</p>
+  </section>
+
+  <!-- Registrations -->
+  <section id="view-registrations" class="view" aria-labelledby="reg-h" hidden>
+    <h1 id="reg-h">Registrations</h1>
+    <dl id="stats" class="stats"></dl>
+    <div class="tools">
+      <label for="search" class="sr-only">Search</label>
+      <input id="search" type="search" placeholder="Search name, email, phone or code" autocomplete="off">
+      <label for="filter" class="sr-only">Show</label>
+      <select id="filter">
+        <option value="all">Everyone</option>
+        <option value="yes">Coming (yes)</option>
+        <option value="no">Not coming (no)</option>
+        <option value="unpaid">Coming, not paid</option>
+        <option value="paid">Paid</option>
+        <option value="in">Checked in</option>
+      </select>
+      <button type="button" id="refresh" class="secondary">Refresh</button>
+      <button type="button" id="export" class="secondary">Download CSV</button>
+    </div>
+    <p id="reg-count" class="hint"></p>
+    <ul id="reg-list" class="rows"></ul>
+  </section>
+
+  <!-- Gate -->
+  <section id="view-gate" class="view" aria-labelledby="gate-h" hidden>
+    <h1 id="gate-h">Gate check-in</h1>
+    <div id="gate-result" class="gate-result" role="status" aria-live="assertive" hidden></div>
+    <div class="cam-wrap">
+      <video id="cam" aria-label="Camera preview" muted playsinline></video>
+    </div>
+    <div class="tools">
+      <button type="button" id="cam-start">Start camera</button>
+      <button type="button" id="cam-stop" class="secondary" hidden>Stop camera</button>
+      <button type="button" id="scan-next" hidden>Scan next</button>
+    </div>
+    <form id="code-form" class="card" novalidate>
+      <label for="code-input">No QR? Type the ticket code</label>
+      <input id="code-input" type="text" inputmode="text" autocomplete="off" placeholder="MF-0001" maxlength="12">
+      <button type="submit">Check code</button>
+    </form>
+  </section>
+
+  <!-- Admins (super admin only) -->
+  <section id="view-admins" class="view" aria-labelledby="adm-h" hidden>
+    <h1 id="adm-h">Admins</h1>
+    <p class="hint">Adding someone here gives them access. They also need a login: in Supabase go to
+      Authentication &rarr; Users &rarr; Add user, use the same email, and tick "Auto Confirm User".</p>
+    <ul id="admin-list" class="rows"></ul>
+    <form id="admin-form" class="card" novalidate>
+      <h2>Add an admin</h2>
+      <label for="admin-email">Email</label>
+      <input id="admin-email" type="email" required maxlength="120" autocomplete="off">
+      <label for="admin-role">Role</label>
+      <select id="admin-role">
+        <option value="admin">Admin (registrations + gate)</option>
+        <option value="super_admin">Super admin (also manages admins)</option>
+      </select>
+      <label class="check"><input id="admin-emails" type="checkbox"> Send them registration emails</label>
+      <button type="submit">Add admin</button>
+    </form>
+  </section>
+</main>
+</body>
+</html>

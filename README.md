@@ -10,10 +10,12 @@ Static site on **Vercel**, registrations stored in **Supabase**.
 
 | Path | What it is |
 |---|---|
-| `site/` | The website: `index.html`, `styles.css`, `app.js` |
+| `site/` | Public website: `index.html`, `styles.css`, `app.js`, `vendor/qrcode.js` |
+| `admin/` | Admin website (separate Vercel project): `admin/site/*`, `admin/vercel.json` |
 | `scripts/build.mjs` | Vercel build: copies `site/` to `public/` and writes `config.js` from env vars |
 | `vercel.json` | Build settings + security headers (CSP etc.) |
 | `supabase/migrations/` | Database setup (table, security rules, `register_rsvp` function) |
+| `supabase/functions/notify-rsvp/` | Edge Function that emails admins about new registrations |
 | `supabase/tests/` | Database tests |
 | `tests/` | Browser tests (form, CSP, mobile, accessibility) |
 | `docs/` | Deploy guide, privacy runbook, email hook plan, decisions |
@@ -21,9 +23,10 @@ Static site on **Vercel**, registrations stored in **Supabase**.
 ## Start here
 
 - Deploy: [`docs/DEPLOY.md`](docs/DEPLOY.md)
+- Admin portal, tickets, emails: [`docs/ADMIN-SETUP.md`](docs/ADMIN-SETUP.md)
 - Delete or export someone's data: [`docs/PRIVACY-RUNBOOK.md`](docs/PRIVACY-RUNBOOK.md)
 - Email notifications later: [`docs/EMAIL-HOOK.md`](docs/EMAIL-HOOK.md)
-- Why it's built this way: [`docs/adr/001-rpc-only-writes.md`](docs/adr/001-rpc-only-writes.md)
+- Why it's built this way: [`docs/adr/001-rpc-only-writes.md`](docs/adr/001-rpc-only-writes.md), [`docs/adr/002-tickets-and-admin-portal.md`](docs/adr/002-tickets-and-admin-portal.md)
 
 ## Environment variables
 
@@ -34,10 +37,10 @@ See `.env.example`. Only two, both public by design:
 
 ## Run the tests
 
-Browser tests (needs Node 18+ and Playwright with Chromium):
+Browser and function tests (needs Node 22.18+ and Playwright with Chromium):
 
 ```bash
-node --test tests/e2e.test.mjs
+node --test tests/e2e.test.mjs tests/admin.e2e.test.mjs tests/notify.test.mjs
 ```
 
 Database tests (needs a local PostgreSQL 15+):
