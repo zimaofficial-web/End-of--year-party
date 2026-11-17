@@ -49,7 +49,7 @@ const csp = (vercel.headers || [])
 if (!csp) fail('vercel.json has no Content-Security-Policy header.');
 const connect = (csp.value.match(/connect-src ([^;]+)/) || [])[1] || '';
 if (!connect.split(/\s+/).includes(url)) {
-  fail(`vercel.json CSP connect-src does not include ${url}. Replace YOUR-PROJECT-REF in vercel.json.`);
+  fail(`vercel.json CSP connect-src does not include ${url}. Put your Supabase Project URL in vercel.json connect-src.`);
 }
 
 // --- output -------------------------------------------------------------------

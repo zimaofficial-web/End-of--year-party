@@ -33,7 +33,8 @@ function makeProjectCopy({ cspUrl }) {
   cpSync(join(ROOT, 'site'), join(dir, 'site'), { recursive: true });
   cpSync(join(ROOT, 'scripts'), join(dir, 'scripts'), { recursive: true });
   let vj = readFileSync(join(ROOT, 'vercel.json'), 'utf8');
-  if (cspUrl) vj = vj.replace('https://YOUR-PROJECT-REF.supabase.co', cspUrl);
+  // Point connect-src at the test project (or the placeholder, to test the guard).
+  vj = vj.replace(/connect-src https:\/\/[a-z0-9-]+\.supabase\.co/, 'connect-src ' + (cspUrl || 'https://YOUR-PROJECT-REF.supabase.co'));
   writeFileSync(join(dir, 'vercel.json'), vj);
   return dir;
 }
