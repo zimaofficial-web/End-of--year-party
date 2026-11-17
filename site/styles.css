@@ -1,0 +1,133 @@
+:root{--blue:#1237A8;--navy:#0B2273;--gold:#F5B800;--cream:#F6F1E6;--ink:#0B1530}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--blue);color:var(--cream);font-family:'Space Grotesk',system-ui,sans-serif;font-size:18px;line-height:1.55;overflow-x:hidden}
+a{color:var(--gold)}
+:focus-visible{outline:3px solid var(--gold);outline-offset:3px}
+.skip{position:absolute;left:-999px;top:8px;background:var(--gold);color:var(--ink);padding:10px 16px;border-radius:8px;font-weight:700;z-index:10}
+.skip:focus{left:8px}
+.wrap{max-width:1000px;margin:0 auto;padding:0 24px}
+.eyebrow{font-size:14px;font-weight:500;letter-spacing:.3em;text-transform:uppercase;color:var(--gold);margin:0}
+
+/* hero */
+.hero{position:relative;overflow:hidden;padding:72px 0 64px}
+.hero .ring{position:absolute;border-radius:50%;pointer-events:none}
+.r1{right:-100px;top:-100px;width:400px;height:400px;background:var(--gold)}
+.r2{right:-40px;top:-40px;width:280px;height:280px;background:var(--blue)}
+.r3{right:20px;top:20px;width:160px;height:160px;background:var(--cream)}
+.hero .wrap{position:relative}
+h1{margin:14px 0 0;font-size:clamp(76px,19vw,190px);line-height:.86;letter-spacing:-.04em;text-transform:uppercase}
+h1 span{color:var(--gold);display:block}
+.sub{font-size:clamp(22px,4.4vw,40px);font-weight:500;letter-spacing:.02em;text-transform:uppercase;margin:18px 0 0}
+.tag{font-size:clamp(17px,2.6vw,24px);margin:10px 0 0;color:rgba(246,241,230,.88)}
+.cta{display:inline-block;margin-top:32px;background:var(--gold);color:var(--ink);font-weight:700;text-decoration:none;padding:16px 32px;border-radius:999px;letter-spacing:.1em;text-transform:uppercase;font-size:16px;min-height:44px}
+.cta:hover{background:#ffd24a}
+.badge{position:absolute;right:24px;top:230px;width:150px;height:150px;border-radius:50%;background:var(--cream);color:var(--blue);transform:rotate(-12deg);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;font-weight:700;text-transform:uppercase;line-height:1.05;box-shadow:6px 6px 0 var(--gold)}
+.badge small{font-size:11px;letter-spacing:.2em}
+.badge b{font-size:26px}
+@media(max-width:700px){.badge{display:none}.r1{right:-170px;top:-170px}.r2{right:-130px;top:-130px}.r3{right:-70px;top:-70px}}
+
+/* sections */
+section{padding:56px 0}
+h2{font-size:clamp(30px,5vw,46px);line-height:1.05;margin:8px 0 24px;letter-spacing:-.01em}
+.lead{font-size:clamp(19px,2.4vw,23px);max-width:700px;margin:0}
+.chips{list-style:none;padding:0;margin:28px 0 0;display:flex;flex-wrap:wrap;gap:12px}
+.chips li{border:2px solid var(--gold);border-radius:999px;padding:8px 20px;font-weight:500}
+dl.facts{margin:0;border-top:2px solid rgba(246,241,230,.25)}
+.facts div{display:flex;gap:24px;align-items:baseline;padding:18px 0;border-bottom:2px solid rgba(246,241,230,.25);flex-wrap:wrap}
+.facts dt{width:120px;font-size:14px;letter-spacing:.25em;text-transform:uppercase;color:var(--gold)}
+.facts dd{margin:0;font-size:clamp(22px,3.6vw,32px);font-weight:700}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:8px}
+.card{background:var(--navy);border-radius:18px;padding:24px}
+.card h3{margin:0 0 8px;font-size:22px;color:var(--gold)}
+.card p{margin:0}
+
+/* ticket */
+.ticket{display:flex;background:var(--gold);color:var(--ink);border-radius:20px;overflow:hidden;flex-wrap:wrap}
+.ticket .main{flex:1 1 300px;padding:28px 32px;border-right:3px dashed var(--blue)}
+.ticket .main p{margin:0}
+.ticket .stub{flex:0 0 240px;padding:28px 24px;text-align:center;display:flex;flex-direction:column;justify-content:center;gap:4px}
+.ticket .k{font-size:13px;font-weight:700;letter-spacing:.25em;text-transform:uppercase}
+.ticket .big{font-size:clamp(32px,6vw,44px);font-weight:700;text-transform:uppercase;line-height:1;margin:8px 0}
+.ticket .price{font-size:56px;font-weight:700;line-height:1}
+@media(max-width:700px){.ticket .main{border-right:0;border-bottom:3px dashed var(--blue)}.ticket .stub{flex-basis:100%}}
+.notice{font-size:23px;font-weight:700;margin:24px 0 0}
+.notice-gold{margin-top:8px;color:var(--gold)}
+
+/* form */
+form{background:var(--navy);border-radius:20px;padding:32px;max-width:640px}
+@media(max-width:480px){form{padding:24px 18px}}
+.field{margin-bottom:22px}
+label,legend{display:block;font-weight:700;margin-bottom:8px;font-size:17px}
+.opt{font-weight:400;color:rgba(246,241,230,.75)}
+input[type=text],input[type=email],input[type=tel],textarea{width:100%;font:inherit;font-size:18px;padding:14px 16px;border-radius:10px;border:2px solid transparent;background:var(--cream);color:var(--ink);min-height:48px}
+textarea{min-height:96px;resize:vertical}
+input[aria-invalid=true],textarea[aria-invalid=true]{border-color:#C62828;background:#FFF1EF}
+.err{color:#FFB4AB;font-weight:500;margin:6px 0 0;font-size:15px;min-height:0}
+.err:before{content:"\26A0\00a0"}
+.err:empty{display:none}
+.err-consent{margin:-12px 0 20px}
+fieldset{border:0;padding:0;margin:0 0 22px}
+.radios{display:flex;gap:12px;flex-wrap:wrap}
+.radios label{display:flex;align-items:center;gap:10px;margin:0;font-weight:500;background:var(--cream);color:var(--ink);padding:12px 20px;border-radius:10px;min-height:48px;cursor:pointer}
+.radios input{width:20px;height:20px;accent-color:var(--blue)}
+.consent{display:flex;gap:12px;align-items:flex-start;margin-bottom:10px}
+.consent input{width:22px;height:22px;margin-top:3px;accent-color:var(--gold);flex:none}
+.consent input[aria-invalid=true]{outline:3px solid #FFB4AB;outline-offset:2px}
+.consent label{margin:0;font-weight:400;font-size:16px}
+.privacy{font-size:14px;line-height:1.5;margin:0 0 22px 34px;color:rgba(246,241,230,.85)}
+.privacy a{word-break:break-word}
+.price-note{font-weight:700;font-size:23px;margin:0 0 20px}
+.gate-note{font-weight:700;font-size:20px;margin:-8px 0 20px;color:var(--gold)}
+button[type=submit]{font:inherit;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:var(--ink);border:0;border-radius:999px;padding:16px 36px;min-height:48px;cursor:pointer;font-size:16px}
+button[type=submit]:hover{background:#ffd24a}
+button[disabled]{opacity:.6;cursor:wait}
+.result{margin-top:24px;padding:20px 24px;border-radius:14px;background:var(--cream);color:var(--ink);font-weight:500}
+.result[hidden]{display:none}
+.result strong{display:block;font-size:20px;margin-bottom:4px}
+.result.is-error{border-left:6px solid #C62828}
+.result.is-ok{border-left:6px solid var(--gold)}
+footer{padding:40px 0 56px;border-top:2px solid rgba(246,241,230,.2);font-size:16px;color:rgba(246,241,230,.85)}
+.footer-line{margin:0}
+.hp{position:absolute;left:-9999px}
+
+/* ---------------------------------------------------------------- motion
+   Everything below runs ONLY when the visitor has not asked for reduced
+   motion. Content is fully visible without any of it. */
+@media (prefers-reduced-motion: no-preference){
+  @keyframes rise{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
+  @keyframes float{0%,100%{transform:rotate(-12deg) translateY(0)}50%{transform:rotate(-6deg) translateY(-10px)}}
+  @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-1.2deg)}75%{transform:rotate(1.2deg)}}
+  @keyframes pop{0%{opacity:0;transform:scale(.92)}60%{opacity:1;transform:scale(1.03)}100%{transform:scale(1)}}
+
+  /* hero: text rises in one line after another, rings breathe, badge floats */
+  .hero .eyebrow,.hero h1,.hero .sub,.hero .tag,.hero .cta{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
+  .hero h1{animation-delay:.1s}
+  .hero .sub{animation-delay:.25s}
+  .hero .tag{animation-delay:.35s}
+  .hero .cta{animation-delay:.5s}
+  .r1{animation:pulse 6s ease-in-out infinite}
+  .r2{animation:pulse 6s ease-in-out infinite .4s}
+  .r3{animation:pulse 6s ease-in-out infinite .8s}
+  .badge{animation:float 5s ease-in-out infinite}
+
+  /* buttons and chips lift a little */
+  .cta,button[type=submit],.chips li,.card{transition:transform .2s ease,background-color .2s ease,box-shadow .2s ease}
+  .cta:hover,button[type=submit]:hover:not([disabled]){transform:translateY(-2px)}
+  .chips li:hover{transform:translateY(-3px) rotate(-2deg)}
+  .card:hover{transform:translateY(-4px);box-shadow:0 10px 0 -4px var(--gold)}
+
+  /* ticket wiggles on hover */
+  .ticket:hover{animation:wiggle .5s ease-in-out}
+
+  /* sections fade in as they scroll into view (browsers that support it;
+     others simply show them) */
+  @supports (animation-timeline: view()){
+    .reveal .wrap{animation:rise linear both;animation-timeline:view();animation-range:entry 0% entry 60%}
+  }
+
+  /* result message pops in */
+  .result:not([hidden]){animation:pop .45s cubic-bezier(.2,.7,.2,1)}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}

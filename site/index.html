@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Miva Fest: The December Experience</title>
+<meta name="description" content="Miva Fest, 22 December 2026 at National Children's Park, Abuja. Register for the December Experience.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<script src="config.js" defer></script>
+<script src="app.js" defer></script>
+</head>
+<body>
+<a class="skip" href="#register">Skip to registration</a>
+
+<header class="hero">
+<div class="ring r1" aria-hidden="true"></div>
+<div class="ring r2" aria-hidden="true"></div>
+<div class="ring r3" aria-hidden="true"></div>
+<div class="wrap">
+<p class="eyebrow">You're invited</p>
+<h1>Miva <span>Fest</span></h1>
+<p class="sub">The December Experience</p>
+<p class="tag">Good vibes. Great people. Unforgettable moments.</p>
+<a class="cta" href="#register">Register now</a>
+<div class="badge" aria-hidden="true"><small>Dress code</small><b>Festival</b><b>Chic</b></div>
+</div>
+</header>
+
+<main id="main">
+<section class="reveal" aria-labelledby="about">
+<div class="wrap">
+<p class="eyebrow">The day</p>
+<h2 id="about">One last gathering before the year ends</h2>
+<p class="lead">Come ready for good music, great food, exciting games, unforgettable moments and an entire day of good vibes. Let's make this December count. Bring your people.</p>
+<ul class="chips" aria-label="What to expect">
+<li>Music</li><li>Games</li><li>Dancing</li><li>Outdoor activities</li>
+</ul>
+</div>
+</section>
+
+<section class="reveal" aria-labelledby="details">
+<div class="wrap">
+<p class="eyebrow">Details</p>
+<h2 id="details">When and where</h2>
+<dl class="facts">
+<div><dt>Date</dt><dd>22nd December 2026</dd></div>
+<div><dt>Time</dt><dd>10 AM &ndash; 5:30 PM</dd></div>
+<div><dt>Venue</dt><dd>National Children's Park, Abuja</dd></div>
+<div><dt>Dress code</dt><dd>Festival chic</dd></div>
+</dl>
+</div>
+</section>
+
+<section class="reveal" aria-labelledby="know">
+<div class="wrap">
+<p class="eyebrow">Good to know</p>
+<h2 id="know">Before you come</h2>
+<div class="cards">
+<div class="card"><h3>Food</h3><p>Bring your own refreshment. Please tell us what you're bringing in the registration form so we can plan how to use it on the day.</p></div>
+<div class="card"><h3>Activities</h3><p>Expect games, dancing and outdoor activities through the day. Plans may change on the day depending on what the crowd wants.</p></div>
+<div class="card"><h3>Gate fee</h3><p>Keep &#8358;1,000 in hand for the gate fee at the park.</p></div>
+<div class="card"><h3>What to wear</h3><p>Festival chic. Bright, comfortable and ready for the outdoors.</p></div>
+</div>
+</div>
+</section>
+
+<section class="reveal" aria-labelledby="ticket">
+<div class="wrap">
+<p class="eyebrow">Ticket</p>
+<h2 id="ticket">Get your spot</h2>
+<div class="ticket">
+<div class="main">
+<p class="k">Admit one</p>
+<p class="big">Miva Fest</p>
+<p>22 December 2026 &middot; National Children's Park, Abuja</p>
+</div>
+<div class="stub">
+<span class="k">Ticket</span>
+<span class="price">&#8358;3,000</span>
+<span class="k">Per person</span>
+</div>
+</div>
+<p class="notice">The ticket is per person. No refunds.</p>
+<p class="notice notice-gold">Keep &#8358;1,000 in hand for the gate fee.</p>
+</div>
+</section>
+
+<section id="register" aria-labelledby="reg">
+<div class="wrap">
+<p class="eyebrow">Register</p>
+<h2 id="reg">Tell us you're coming</h2>
+<form id="rsvp" novalidate>
+<div class="field">
+<label for="name">Your name</label>
+<input id="name" name="name" type="text" autocomplete="name" required minlength="2" maxlength="80" aria-describedby="name-err">
+<p class="err" id="name-err"></p>
+</div>
+<div class="field">
+<label for="email">Email</label>
+<input id="email" name="email" type="email" autocomplete="email" required maxlength="120" aria-describedby="email-err">
+<p class="err" id="email-err"></p>
+</div>
+<div class="field">
+<label for="phone">Phone / WhatsApp number</label>
+<input id="phone" name="phone" type="tel" autocomplete="tel" inputmode="tel" required maxlength="20" aria-describedby="phone-err">
+<p class="err" id="phone-err"></p>
+</div>
+<fieldset aria-describedby="attend-err">
+<legend>Will you be able to make it?</legend>
+<div class="radios">
+<label><input type="radio" name="attend" value="yes"> Yes, I'll be there</label>
+<label><input type="radio" name="attend" value="no"> No, I can't make it</label>
+</div>
+<p class="err" id="attend-err"></p>
+</fieldset>
+<div class="field">
+<label for="bring">What refreshment are you bringing? <span class="opt">(optional, but please tell us)</span></label>
+<textarea id="bring" name="bring" maxlength="300" aria-describedby="bring-err"></textarea>
+<p class="err" id="bring-err"></p>
+</div>
+<div class="hp" aria-hidden="true"><label for="site">Leave this empty</label><input id="site" name="site" type="text" tabindex="-1" autocomplete="off"></div>
+<div class="consent">
+<input id="consent" name="consent" type="checkbox" aria-describedby="consent-note consent-err">
+<label for="consent">I agree that my details will be used only to organise Miva Fest and contact me about it.</label>
+</div>
+<p class="privacy" id="consent-note">We only collect what's in this form. Your details are stored securely, seen only by the organisers, never sold or shared, and deleted by 31 January 2027. To see or delete your details, email <a href="mailto:zimaofficial001@gmail.com">zimaofficial001@gmail.com</a> or WhatsApp <a href="https://wa.me/2348080633426" rel="noopener noreferrer" target="_blank">+234 808 063 3426</a>.</p>
+<p class="err err-consent" id="consent-err"></p>
+<p class="price-note">Ticket is &#8358;3,000 per person. No refunds.</p>
+<p class="gate-note">Keep &#8358;1,000 in hand for the gate fee.</p>
+<button type="submit" id="send">Submit registration</button>
+<div class="result" id="result" role="status" aria-live="polite" hidden></div>
+</form>
+</div>
+</section>
+</main>
+
+<footer>
+<div class="wrap">
+<p class="footer-line">Miva Fest &middot; The December Experience &middot; 22 December 2026</p>
+</div>
+</footer>
+</body>
+</html>
