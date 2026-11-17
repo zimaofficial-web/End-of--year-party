@@ -9,7 +9,7 @@ Assessed by: Claude (AI assistant) · Date: 2026-11-17 · Against: `Zima/04-chec
 - ❌ **Not met**: required by the checklist but not done (reason given)
 
 **Test runs this evidence comes from**
-- DB: `bash scripts/test-db.sh` → **52/52 PASS**, "ALL DATABASE TESTS PASSED", exit 0. Real PostgreSQL 16.15 in a scratch container, with Supabase's `anon` / `authenticated` / `service_role` roles and default grants recreated. **Not** your real Supabase project.
+- DB: `bash scripts/test-db.sh` → **52/52 PASS**, "ALL DATABASE TESTS PASSED", exit 0. Real PostgreSQL 16.15 in a scratch container, with Supabase's `anon` / `authenticated` / `service_role` roles and default grants recreated, and the migration run as a **non-superuser** admin like Supabase's `postgres` (this reproduced, then confirmed the fix for, the "permission denied for schema public" error seen on the real project). **Not** your real Supabase project.
 - Browser: `node --test tests/e2e.test.mjs` → **22/22 pass**, 3 runs in a row with 0 failures. Chromium (Playwright 1.63), page served with the real `vercel.json` headers, Supabase stubbed at the network level.
 - CSP test checked for teeth: adding one inline `style=""` made it fail; reverted.
 

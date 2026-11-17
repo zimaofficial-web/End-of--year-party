@@ -225,7 +225,11 @@ begin
 end;
 $$;
 
+-- A new owner must hold CREATE on the schema. Grant it only for the hand-over,
+-- then take it back so rsvp_writer cannot create anything.
+grant create on schema public to rsvp_writer;
 alter function public.register_rsvp(text, text, text, text, text, boolean, text) owner to rsvp_writer;
+revoke create on schema public from rsvp_writer;
 
 -- Supabase grants EXECUTE on new functions to public/anon/authenticated by
 -- default. Reset, then allow only anon (the website).
