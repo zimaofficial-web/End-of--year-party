@@ -55,7 +55,7 @@ Assessed by: Claude (AI assistant) · Date: 2026-11-17 · Against: `Zima/04-chec
 | Parameterised SQL | ✅ | Browser sends JSON args to the RPC; the function uses no dynamic SQL (no `EXECUTE` in `register_rsvp`). |
 | No dynamic shell commands | ➖ | None at runtime. |
 | HTML escaping of user data | ✅ | `app.js` uses `textContent` only; tests "names with HTML…" and "unexpected 200 body…". |
-| Strict CSP | ✅ + 👤 | `vercel.json`: no `unsafe-inline`/`unsafe-eval`, `default-src 'none'`. Test "zero violations" (proven able to fail). 👤 Check the live site at securityheaders.com. |
+| Strict CSP | ✅ | `vercel.json`: no `unsafe-inline`/`unsafe-eval`, `default-src 'none'`. Test "zero violations" (proven able to fail). **Live:** the response from https://miva-fest.vercel.app/config.js (fetched 17 Nov 2026 via the Vercel connector) carries this exact CSP + HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy, COOP, CORP. |
 | Anti-CSRF | ➖ | No cookies; `fetch` uses `credentials: 'omit'`. |
 | Password hashing, session cookies | ➖ | No logins. |
 | Rate limiting on registration | ✅ | 5 per IP per 10 min; DB tests "rate-limit attempt…", "6th attempt → rate_limited". 👤 Confirm Supabase sends `x-forwarded-for` (if not, the IP limit is skipped; duplicate-email blocking still works). |
@@ -155,12 +155,13 @@ Assessed by: Claude (AI assistant) · Date: 2026-11-17 · Against: `Zima/04-chec
 | Item | Status | Evidence |
 |---|---|---|
 | CI green | ❌ | No CI. |
-| Env vars validated at startup | ✅ | `scripts/build.mjs` stops the build if they're missing or wrong (4 build tests). |
+| Env vars validated at startup | ✅ | `scripts/build.mjs` stops the build if they're missing or wrong (4 build tests). Live deploy was pre-built with the real values (build passed locally); env vars are **not** yet saved in Vercel (the connector got 403). |
+| Deployed = tested | ✅ | SHA-1 of `index.html`, `styles.css`, `app.js`, `config.js` in deployment `dpl_9wFonzesn1AbN6mB9JrPgdDroaeP` match the local tested files exactly. |
 | No secrets in client bundle | ✅ | See above. |
 | Zero-downtime migrations | ➖ | First deploy. |
 | Rollback artifact | 👤 | Vercel keeps previous deployments ("Promote" in the dashboard). |
 | Health probes | ➖ | Static site. |
-| TLS + HSTS | ✅ + 👤 | HSTS in `vercel.json`; Vercel provides TLS. Check live. |
+| TLS + HSTS | ✅ | Live response has `strict-transport-security: max-age=63072000; includeSubDomains; preload`. |
 | Error monitoring | ❌ | None set up. |
 | Backups + restore | 👤 | DEPLOY.md Part E. |
 | Live smoke test | 👤 | DEPLOY.md Part D, tests 1–6. |

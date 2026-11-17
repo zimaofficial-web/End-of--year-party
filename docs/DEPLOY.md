@@ -1,5 +1,10 @@
 # Deploying Miva Fest
 
+> **Status (17 Nov 2026):** Parts A and B are done. The site is live at https://miva-fest.vercel.app.
+> It was uploaded as pre-built files (GitHub wasn't connected yet), so Vercel did not run the build.
+> When you connect this GitHub repo to the Vercel project later, first add the two environment
+> variables from step 8 in Vercel, or the build will stop on purpose.
+
 Do these in order. Each step is small. Tick them off as you go.
 
 ## Part A: Supabase (the database)

@@ -4,6 +4,8 @@ Public registration page for **Miva Fest: The December Experience**, 22 December
 
 Static site on **Vercel**, registrations stored in **Supabase**.
 
+**Live:** https://miva-fest.vercel.app (Vercel project `miva-fest`, Supabase project `houljdudfeyhrhxrcrfs`).
+
 ## Folders
 
 | Path | What it is |
