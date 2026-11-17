@@ -2,6 +2,14 @@
 
 Do these once, in order. Claude will walk you through them one at a time.
 
+## 0. Vercel projects (from GitHub)
+- **Public site** (project `miva-fest`): Settings → Git → connect `zimaofficial-web/End-of--year-party`.
+  Settings → Environment Variables: `SUPABASE_URL`, `SUPABASE_ANON_KEY` (publishable key). Root Directory: empty.
+- **Admin site** (new project, e.g. `miva-fest-admin`): Add New → Project → same repo →
+  **Root Directory = `admin`** → same two environment variables → Deploy.
+  Its settings come from `admin/vercel.json` (build `node ../scripts/build.mjs …`, output `public`).
+- Production branch: `claude/rsvp-supabase` until it is merged into `main`.
+
 ## 1. Update the database
 Supabase → **SQL Editor** → **New query** → paste all of
 `supabase/migrations/20261118000000_tickets_and_admins.sql` → **Run** → expect *Success*.

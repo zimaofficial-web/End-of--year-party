@@ -2,8 +2,8 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
   "installCommand": "",
-  "buildCommand": "node scripts/build.mjs admin/site admin/vercel.json admin/public",
-  "outputDirectory": "admin/public",
+  "buildCommand": "node ../scripts/build.mjs admin/site admin/vercel.json admin/public",
+  "outputDirectory": "public",
   "headers": [
     {
       "source": "/(.*)",
