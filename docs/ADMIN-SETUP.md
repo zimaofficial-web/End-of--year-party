@@ -8,7 +8,7 @@ Do these once, in order. Claude will walk you through them one at a time.
 - **Admin site** (new project, e.g. `miva-fest-admin`): Add New → Project → same repo →
   **Root Directory = `admin`** → same two environment variables → Deploy.
   Its settings come from `admin/vercel.json` (build `node ../scripts/build.mjs …`, output `public`).
-- Production branch: `claude/rsvp-supabase` until it is merged into `main`.
+- Production branch: `main` (Vercel's default). Pushing to `main` updates the live sites.
 
 ## 1. Update the database
 Supabase → **SQL Editor** → **New query** → paste all of
