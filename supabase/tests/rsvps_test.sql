@@ -28,7 +28,7 @@ declare r text;
 begin
   perform set_config('request.headers', json_build_object('x-forwarded-for', p_ip)::text, true);
   set local role anon;
-  r := public.register_rsvp(p_name, p_email, p_phone, p_att, p_bring, p_consent, p_site);
+  r := public.register_rsvp(p_name, p_email, p_phone, p_att, p_bring, p_consent, p_site) ->> 'status';
   reset role;
   return r;
 end $$;
@@ -49,11 +49,13 @@ select pg_temp.check((select relrowsecurity and relforcerowsecurity from pg_clas
                       where oid = 'public.rsvps'::regclass),
                      'RLS enabled AND forced on public.rsvps');
 
-select pg_temp.check((select count(*) = 1 from pg_policies where schemaname='public' and tablename='rsvps'),
-                     'exactly one policy exists on rsvps');
-select pg_temp.check((select cmd = 'INSERT' and roles = '{rsvp_writer}' from pg_policies
-                      where schemaname='public' and tablename='rsvps'),
-                     'the only policy is INSERT for rsvp_writer (no SELECT/UPDATE/DELETE/ALL policy)');
+select pg_temp.check(not exists (select 1 from pg_policies where schemaname='public' and tablename='rsvps'
+                                   and (roles && '{public,anon,authenticated}'::name[] or cmd = 'ALL')),
+                     'no rsvps policy applies to public/anon/authenticated, and none is FOR ALL');
+select pg_temp.check((select array_agg(cmd || ':' || array_to_string(roles, ',') order by cmd)
+                        = '{INSERT:rsvp_writer,SELECT:rsvp_admin_ops,UPDATE:rsvp_admin_ops}'
+                      from pg_policies where schemaname='public' and tablename='rsvps'),
+                     'rsvps policies: INSERT for rsvp_writer only; SELECT/UPDATE for rsvp_admin_ops only; no DELETE');
 
 select pg_temp.check((select p.prosecdef and 'search_path=""' = any(p.proconfig)
                         and r.rolname = 'rsvp_writer' and not r.rolsuper and not r.rolbypassrls
@@ -66,9 +68,10 @@ select pg_temp.check(not has_function_privilege('public', 'public.register_rsvp(
                      and has_function_privilege('anon', 'public.register_rsvp(text,text,text,text,text,boolean,text)', 'execute'),
                      'EXECUTE on register_rsvp: anon only (revoked from PUBLIC and authenticated)');
 
-select pg_temp.check((select count(*) = 11 from information_schema.columns
-                      where table_schema='public' and table_name='rsvps'),
-                     'rsvps has exactly the 11 agreed columns (data minimisation)');
+select pg_temp.check((select array_agg(column_name::text order by column_name::text) from information_schema.columns
+                      where table_schema='public' and table_name='rsvps')
+                     = '{attending,bringing,checked_in_at,checked_in_by,consent,consent_at,created_at,email,id,name,notified,paid,paid_at,paid_by,phone,policy_version,ticket_code,ticket_token}',
+                     'rsvps has exactly the agreed columns: 11 form/consent + ticket, payment and check-in (data minimisation)');
 
 -- --------------------------------------------------- anon direct access denied
 select pg_temp.check(pg_temp.try_as('anon', 'select * from public.rsvps') = '42501',

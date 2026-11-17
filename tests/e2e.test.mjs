@@ -147,7 +147,7 @@ test('build: refuses while vercel.json CSP still has the placeholder project', (
 
 test('build: output contains only the page files + anon config, no docs/SQL/scripts', () => {
   const pub = join(buildDir, 'public');
-  for (const f of ['index.html', 'styles.css', 'app.js', 'config.js']) assert.ok(existsSync(join(pub, f)), f);
+  for (const f of ['index.html', 'styles.css', 'app.js', 'config.js', 'vendor/qrcode.js']) assert.ok(existsSync(join(pub, f)), f);
   for (const f of ['supabase', 'scripts', 'docs', 'vercel.json']) assert.ok(!existsSync(join(pub, f)), f);
   const cfg = readFileSync(join(pub, 'config.js'), 'utf8');
   assert.match(cfg, /testproject\.supabase\.co/);
@@ -208,6 +208,84 @@ test('valid "yes" submit: button disabled while sending, correct payload, succes
   assert.equal(calls[0].headers.apikey, ANON_JWT);
   assert.equal(await page.inputValue('#name'), '', 'form reset after success');
   assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('gate-fee reminder is gone from the page', async () => {
+  const { page, context } = await openPage(null);
+  const text = await page.locator('body').innerText();
+  assert.doesNotMatch(text, /1,000|gate fee/i);
+  await context.close();
+});
+
+const TOKEN = '3f2b8c1e-9a4d-4e7b-8c2f-1a2b3c4d5e6f';
+test('"yes" ticket: code + QR shown; QR decodes to MIVAFEST1:<token> with the gate scanner library', async () => {
+  const { page, context, problems } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }));
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForSelector('#result canvas');
+  const text = await resultText(page);
+  assert.match(text, /Registration received/);
+  assert.match(text, /Your ticket code is MF-0042/);
+  assert.match(text, /\[PAYMENT INSTRUCTIONS TO BE ADDED\]/);
+  assert.equal(await page.getAttribute('#result canvas', 'aria-label'), 'Ticket QR code for MF-0042');
+  // Read the pixels and decode with the same jsQR file the gate page uses.
+  const img = await page.evaluate(() => {
+    const c = document.querySelector('#result canvas');
+    const d = c.getContext('2d').getImageData(0, 0, c.width, c.height);
+    return { w: d.width, h: d.height, data: Array.from(d.data) };
+  });
+  const jsQR = require(join(ROOT, 'admin', 'vendor', 'jsQR.js'));
+  const decoded = jsQR(Uint8ClampedArray.from(img.data), img.w, img.h);
+  assert.ok(decoded, 'QR could not be decoded');
+  assert.equal(decoded.data, 'MIVAFEST1:' + TOKEN);
+  assert.doesNotMatch(decoded.data, /Ada|example\.com|0808/, 'QR holds no personal data');
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('"Save ticket" downloads a PNG named after the ticket code', async () => {
+  const { page, context, problems } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }));
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForSelector('#result .save-ticket');
+  const [download] = await Promise.all([page.waitForEvent('download'), page.click('#result .save-ticket')]);
+  assert.equal(download.suggestedFilename(), 'miva-fest-ticket-MF-0042.png');
+  const path = await download.path();
+  const head = readFileSync(path).subarray(0, 8).toString('hex');
+  assert.equal(head, '89504e470d0a1a0a', 'file is a PNG');
+  assert.deepEqual(problems, [], 'download works under the strict CSP');
+  await context.close();
+});
+
+test('"no" answer with a code gets no QR ticket', async () => {
+  const { page, context } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0043' }));
+  await fillValid(page, 'no');
+  await page.click('#send');
+  await page.waitForFunction(() => !document.getElementById('result').hidden);
+  assert.equal(await page.locator('#result canvas').count(), 0);
+  assert.match(await resultText(page), /We’ll miss you/);
+  await context.close();
+});
+
+test('malformed ticket data from the server is ignored, not drawn', async () => {
+  const { page, context } = await openPage(okJson({ status: 'created', ticket_code: '<b>x</b>', ticket_token: 'not-a-uuid' }));
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForFunction(() => !document.getElementById('result').hidden);
+  assert.match(await resultText(page), /Registration received/);
+  assert.doesNotMatch(await resultText(page), /<b>|ticket code is/);
+  assert.equal(await page.locator('#result canvas').count(), 0);
+  await context.close();
+});
+
+test('duplicate answer (new object format) shows the duplicate message', async () => {
+  const { page, context } = await openPage(okJson({ status: 'duplicate' }));
+  await fillValid(page);
+  await page.click('#send');
+  await page.waitForFunction(() => !document.getElementById('result').hidden);
+  assert.match(await resultText(page), /already registered/);
+  assert.equal(await page.locator('#result canvas').count(), 0);
   await context.close();
 });
 

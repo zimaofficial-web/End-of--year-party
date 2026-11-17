@@ -19,6 +19,7 @@ $PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1 <<'SQL'
 -- Start like a fresh Supabase project: no leftover rsvp_writer from earlier runs.
 -- (Each run uses its own database, which is dropped afterwards.)
 drop role if exists rsvp_writer;
+drop role if exists rsvp_admin_ops;
 do $$
 begin
   if not exists (select 1 from pg_roles where rolname = 'anon') then
@@ -52,7 +53,10 @@ alter default privileges for role supa_admin in schema public grant all on table
 alter default privileges for role supa_admin in schema public grant all on functions to anon, authenticated, service_role;
 grant anon, authenticated, service_role to supa_admin with admin option;
 SQL
-( echo "set role supa_admin;"; cat supabase/migrations/20261117000000_create_rsvps.sql ) \
-  | $PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1
+for m in supabase/migrations/*.sql; do
+  ( echo "set role supa_admin;"; cat "$m" ) | $PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1
+done
 $PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1 -c "select 'migration owner check', rolsuper from pg_roles r join pg_proc p on p.proowner=r.oid where p.proname='register_rsvp'" >/dev/null
-$PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1 -f supabase/tests/rsvps_test.sql
+for t in supabase/tests/*.sql; do
+  $PSQL -X -q -d "$DB" -v ON_ERROR_STOP=1 -f "$t"
+done

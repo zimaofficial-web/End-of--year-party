@@ -52,7 +52,6 @@ dl.facts{margin:0;border-top:2px solid rgba(246,241,230,.25)}
 .ticket .price{font-size:56px;font-weight:700;line-height:1}
 @media(max-width:700px){.ticket .main{border-right:0;border-bottom:3px dashed var(--blue)}.ticket .stub{flex-basis:100%}}
 .notice{font-size:23px;font-weight:700;margin:24px 0 0}
-.notice-gold{margin-top:8px;color:var(--gold)}
 
 /* form */
 form{background:var(--navy);border-radius:20px;padding:32px;max-width:640px}
@@ -78,7 +77,6 @@ fieldset{border:0;padding:0;margin:0 0 22px}
 .privacy{font-size:14px;line-height:1.5;margin:0 0 22px 34px;color:rgba(246,241,230,.85)}
 .privacy a{word-break:break-word}
 .price-note{font-weight:700;font-size:23px;margin:0 0 20px}
-.gate-note{font-weight:700;font-size:20px;margin:-8px 0 20px;color:var(--gold)}
 button[type=submit]{font:inherit;font-weight:700;letter-spacing:.1em;text-transform:uppercase;background:var(--gold);color:var(--ink);border:0;border-radius:999px;padding:16px 36px;min-height:48px;cursor:pointer;font-size:16px}
 button[type=submit]:hover{background:#ffd24a}
 button[disabled]{opacity:.6;cursor:wait}
@@ -90,6 +88,14 @@ button[disabled]{opacity:.6;cursor:wait}
 footer{padding:40px 0 56px;border-top:2px solid rgba(246,241,230,.2);font-size:16px;color:rgba(246,241,230,.85)}
 .footer-line{margin:0}
 .hp{position:absolute;left:-9999px}
+
+/* ticket shown after a successful "yes" registration */
+.ticket-out{margin-top:16px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
+.ticket-out canvas{width:100%;max-width:300px;height:auto;border-radius:12px;border:2px solid var(--ink);background:#fff}
+.ticket-code{font-size:28px;font-weight:700;letter-spacing:.08em;margin:0}
+.save-ticket{font:inherit;font-weight:700;letter-spacing:.06em;text-transform:uppercase;background:var(--ink);color:var(--cream);border:0;border-radius:999px;padding:12px 24px;min-height:48px;cursor:pointer;font-size:15px}
+.save-ticket:hover{background:var(--navy)}
+.ticket-help{margin:0;font-size:15px}
 
 /* ---------------------------------------------------------------- motion
    Everything below runs ONLY when the visitor has not asked for reduced
