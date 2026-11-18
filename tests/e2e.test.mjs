@@ -211,6 +211,15 @@ test('valid "yes" submit: button disabled while sending, correct payload, succes
   await context.close();
 });
 
+test('sponsors card with WhatsApp link', async () => {
+  const { page, context } = await openPage(null);
+  const card = page.locator('.card', { hasText: 'Sponsors welcome' });
+  assert.equal(await card.count(), 1);
+  assert.equal(await card.locator('a').getAttribute('href'), 'https://wa.me/2348080633426');
+  assert.equal(await card.locator('a').getAttribute('rel'), 'noopener noreferrer');
+  await context.close();
+});
+
 test('gate-fee reminder is gone from the page', async () => {
   const { page, context } = await openPage(null);
   const text = await page.locator('body').innerText();
