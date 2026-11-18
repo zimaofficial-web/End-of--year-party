@@ -51,6 +51,27 @@ async function guard(fn) {
   }
 }
 
+// Follow-up links. Nigerian numbers stored as 0XXXXXXXXXX become 234XXXXXXXXXX for WhatsApp.
+export function whatsappNumber(phone) {
+  const d = String(phone || '').replace(/[^\d+]/g, '');
+  if (/^\+\d{10,15}$/.test(d)) return d.slice(1);
+  if (/^0\d{10}$/.test(d)) return '234' + d.slice(1);
+  if (/^234\d{10}$/.test(d)) return d;
+  return /^\d{10,15}$/.test(d) ? d : '';
+}
+function followUpLinks(r) {
+  const hello = `Hi ${r.name}, this is the Miva IRL team about your registration (${r.ticket_code}).`;
+  const wa = whatsappNumber(r.phone);
+  const links = [];
+  if (wa) {
+    links.push(el('a', { class: 'linkbtn', href: `https://wa.me/${wa}?text=${encodeURIComponent(hello)}`,
+      target: '_blank', rel: 'noopener noreferrer', text: 'WhatsApp', 'aria-label': `WhatsApp ${r.name}` }));
+  }
+  links.push(el('a', { class: 'linkbtn', text: 'Email', 'aria-label': `Email ${r.name}`,
+    href: `mailto:${encodeURIComponent(r.email).replace(/%40/g, '@')}?subject=${encodeURIComponent('Miva IRL: your registration ' + r.ticket_code)}&body=${encodeURIComponent(hello + '\n\n')}` }));
+  return links;
+}
+
 const fmt = (iso) => iso ? new Date(iso).toLocaleString('en-NG', { dateStyle: 'medium', timeStyle: 'short' }) : '';
 
 // ------------------------------------------------------------------ views
@@ -145,7 +166,7 @@ function renderRegistrations() {
       el('span', { class: 'meta', text: `${r.email} · ${r.phone}` }),
       r.bringing ? el('span', { class: 'meta', text: ' · Bringing: ' + r.bringing }) : null,
       tags);
-    const actions = el('div', { class: 'row-actions' });
+    const actions = el('div', { class: 'row-actions' }, ...followUpLinks(r));
     if (r.attending === 'yes' && !r.checked_in_at) {
       actions.append(el('button', {
         type: 'button', class: r.paid ? 'secondary' : '',
