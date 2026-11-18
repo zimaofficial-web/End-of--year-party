@@ -92,6 +92,29 @@ export async function signOut() {
   }
 }
 
+// Change the logged-in admin's own password. The current password is checked
+// first (so a phone left logged in can't be used to lock the owner out).
+export async function changePassword(currentPassword, newPassword) {
+  const email = currentEmail();
+  if (!email) throw new ApiError('signed_out');
+  const check = await request('/auth/v1/token?grant_type=password', { body: { email, password: currentPassword } });
+  if (check.status === 400 || check.status === 401) throw new ApiError('bad_current');
+  if (check.status === 429) throw new ApiError('rate_limited');
+  const s = check.ok ? fromTokenResponse(check.data) : null;
+  if (!s) throw new ApiError('server');
+  save(s);
+  const r = await request('/auth/v1/user', { method: 'PUT', body: { password: newPassword }, token: s.accessToken });
+  if (r.ok) return true;
+  const code = (r.data && (r.data.error_code || r.data.code)) || '';
+  if (code === 'same_password') throw new ApiError('same_password');
+  if (code === 'weak_password' || (r.status === 422 && /weak|short|character/i.test(JSON.stringify(r.data)))) {
+    throw new ApiError('weak_password');
+  }
+  if (code === 'reauthentication_needed') throw new ApiError('reauth_needed');
+  if (r.status === 429) throw new ApiError('rate_limited');
+  throw new ApiError('server');
+}
+
 export function currentEmail() {
   const s = load();
   return s ? s.email : '';

@@ -1,5 +1,5 @@
 // Miva IRL admin: views and UI. All database access goes through api.js.
-import { api, signIn, signOut, isSignedIn, currentEmail, ApiError } from './api.js';
+import { api, signIn, signOut, isSignedIn, currentEmail, changePassword, ApiError } from './api.js';
 import { Scanner, parseTicketQr } from './gate.js';
 
 const $ = (id) => document.getElementById(id);
@@ -28,6 +28,10 @@ const MESSAGES = {
   not_authorized: 'Your account isn’t allowed to do that.',
   signed_out: 'You were logged out. Please log in again.',
   not_configured: 'The admin site isn’t set up yet.',
+  bad_current: 'Your current password is wrong.',
+  weak_password: 'That new password is too weak. Use at least 10 characters.',
+  same_password: 'The new password must be different from the current one.',
+  reauth_needed: 'Supabase wants extra confirmation for password changes. Ask the super admin to reset your login instead.',
   server: 'Something went wrong. Please try again.'
 };
 const say = (e) => MESSAGES[e instanceof ApiError ? e.code : 'server'] || MESSAGES.server;
@@ -62,6 +66,7 @@ function show(view) {
   document.querySelector('[data-super]').hidden = role !== 'super_admin';
   if (view === 'registrations') loadRegistrations();
   if (view === 'admins') loadAdmins();
+  if (view === 'account') $('acc-who').textContent = 'Logged in as ' + currentEmail();
   if (location.hash !== '#' + view) history.replaceState(null, '', '#' + view);
   $('main').focus();
 }
@@ -269,6 +274,29 @@ $('code-form').addEventListener('submit', async (ev) => {
   if (!/^MF-\d{4,}$/.test(code)) { gateResult({ result: 'not_found' }); return; }
   const res = await guard(() => api.checkInCode(code));
   if (res) { gateResult(res); $('code-input').value = ''; }
+});
+
+// ------------------------------------------------------- change password
+$('pw-form').addEventListener('submit', async (ev) => {
+  ev.preventDefault();
+  const msg = $('pw-msg');
+  const cur = $('pw-current').value, next = $('pw-new').value, again = $('pw-confirm').value;
+  msg.textContent = '';
+  if (!cur || !next) { msg.textContent = 'Fill in all three boxes.'; return; }
+  if (next.length < 10) { msg.textContent = 'The new password needs at least 10 characters.'; $('pw-new').focus(); return; }
+  if (next !== again) { msg.textContent = 'The two new passwords don’t match.'; $('pw-confirm').focus(); return; }
+  if (next === cur) { msg.textContent = MESSAGES.same_password; $('pw-new').focus(); return; }
+  $('pw-btn').disabled = true;
+  try {
+    await changePassword(cur, next);
+    for (const id of ['pw-current', 'pw-new', 'pw-confirm']) $(id).value = '';
+    flash('Password changed. Use the new one next time you log in.');
+  } catch (e) {
+    if (e instanceof ApiError && e.code === 'signed_out') { role = null; flash(say(e), true); show('login'); return; }
+    msg.textContent = say(e);
+  } finally {
+    $('pw-btn').disabled = false;
+  }
 });
 
 // ----------------------------------------------------------------- admins

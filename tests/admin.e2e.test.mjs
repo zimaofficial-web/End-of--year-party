@@ -81,6 +81,12 @@ function fakeDb(roleFor = { 'super@x.com': 'super_admin', 'admin@x.com': 'admin'
         return json(200, { access_token: 'tok:' + body.email, refresh_token: 'ref:' + body.email, expires_in: db.expiresIn, user: { email: body.email } });
       }
       if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, body: '' });
+      if (url.pathname === '/auth/v1/user' && req.method() === 'PUT') {
+        if (!auth.startsWith('Bearer tok:')) return json(401, { msg: 'no token' });
+        if (body.password === 'weakweakweak') return json(422, { code: 422, error_code: 'weak_password', msg: 'Password is known to be weak' });
+        db.newPassword = { who: auth.slice('Bearer tok:'.length), password: body.password };
+        return json(200, { id: 'u1', email: auth.slice('Bearer tok:'.length) });
+      }
       const who = auth.startsWith('Bearer tok:') ? auth.slice('Bearer tok:'.length) : null;
       const role = who ? roleFor[who] ?? null : null;
       const fn = url.pathname.replace('/rest/v1/rpc/', '');
@@ -308,6 +314,66 @@ test('super admin: Delete with the wrong code (or cancel) deletes nothing', asyn
   await page.waitForFunction(() => /Nothing was deleted/.test(document.getElementById('flash').textContent));
   assert.equal(rpcCalls(db, 'super_delete_rsvp').length, 0);
   assert.equal(await page.locator('#reg-list li').count(), 3);
+  await context.close();
+});
+
+async function openPasswordPage(db) {
+  const { page, context, problems } = await open(db);
+  await login(page, 'admin@x.com');
+  await page.waitForSelector('#reg-list li');
+  await page.click('a[data-view=account]');
+  await page.waitForSelector('#view-account:not([hidden])');
+  return { page, context, problems };
+}
+const fillPw = async (page, cur, next, again = next) => {
+  await page.fill('#pw-current', cur); await page.fill('#pw-new', next); await page.fill('#pw-confirm', again);
+  await page.click('#pw-btn');
+};
+
+test('change password: every admin has the page; success checks the current password, then updates', async () => {
+  const db = fakeDb();
+  const { page, context, problems } = await openPasswordPage(db);
+  assert.equal(await page.innerText('#acc-who'), 'Logged in as admin@x.com');
+  await fillPw(page, 'right-password', 'a long new passphrase');
+  await page.waitForFunction(() => /Password changed/.test(document.getElementById('flash').textContent));
+  const tokenCalls = db.calls.filter((c) => c.path === '/auth/v1/token?grant_type=password');
+  assert.deepEqual(tokenCalls.at(-1).body, { email: 'admin@x.com', password: 'right-password' }, 'current password re-checked');
+  assert.deepEqual(db.newPassword, { who: 'admin@x.com', password: 'a long new passphrase' });
+  assert.equal(await page.inputValue('#pw-new'), '', 'boxes cleared');
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('change password: wrong current password -> message, nothing changed', async () => {
+  const db = fakeDb();
+  const { page, context } = await openPasswordPage(db);
+  await fillPw(page, 'not-it', 'a long new passphrase');
+  await page.waitForFunction(() => document.getElementById('pw-msg').textContent.length > 0);
+  assert.equal(await page.innerText('#pw-msg'), 'Your current password is wrong.');
+  assert.equal(db.newPassword, undefined);
+  await context.close();
+});
+
+test('change password: too short, mismatch and same-as-current are caught before sending', async () => {
+  const db = fakeDb();
+  const { page, context } = await openPasswordPage(db);
+  const before = db.calls.length;
+  await fillPw(page, 'right-password', 'short');
+  assert.match(await page.innerText('#pw-msg'), /at least 10 characters/);
+  await fillPw(page, 'right-password', 'a long new passphrase', 'a different one!!');
+  assert.match(await page.innerText('#pw-msg'), /don’t match/);
+  await fillPw(page, 'right-password-1', 'right-password-1');
+  assert.match(await page.innerText('#pw-msg'), /must be different/);
+  assert.equal(db.calls.length, before, 'nothing sent');
+  await context.close();
+});
+
+test('change password: server says weak -> friendly message', async () => {
+  const db = fakeDb();
+  const { page, context } = await openPasswordPage(db);
+  await fillPw(page, 'right-password', 'weakweakweak');
+  await page.waitForFunction(() => /too weak/.test(document.getElementById('pw-msg').textContent));
+  assert.equal(db.newPassword, undefined);
   await context.close();
 });
 

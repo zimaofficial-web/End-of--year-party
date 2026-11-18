@@ -59,6 +59,11 @@ Supabase → **Database** → **Webhooks** → **Create a new hook**:
 3. Log in to the admin site → find the ticket → **Mark paid**.
 4. **Gate** → **Start camera** → scan the saved QR → **ADMIT**. Scan again → **ALREADY USED**.
 
+## Passwords
+- Any admin can change their own password: admin site → **My password** (current password + new one, at least 10 characters).
+- Forgot it? The super admin deletes that login in Supabase (Authentication → Users) and creates it again with the same email.
+  Admin access is tied to the email, so nothing else is lost.
+
 ## How payment and the gate work
 - New tickets are **NOT PAID**. When someone pays, find them on **Registrations** and tap **Mark paid**.
 - At the gate, staff log in, open **Gate**, scan. Green **ADMIT** = let in. Red = don't.

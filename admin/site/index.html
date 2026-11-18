@@ -18,6 +18,7 @@
     <a href="#registrations" data-view="registrations">Registrations</a>
     <a href="#gate" data-view="gate">Gate</a>
     <a href="#admins" data-view="admins" data-super hidden>Admins</a>
+    <a href="#account" data-view="account">My password</a>
     <button type="button" id="logout" class="link-btn">Log out</button>
   </nav>
 </header>
@@ -78,6 +79,23 @@
       <label for="code-input">No QR? Type the ticket code</label>
       <input id="code-input" type="text" inputmode="text" autocomplete="off" placeholder="MF-0001" maxlength="12">
       <button type="submit">Check code</button>
+    </form>
+  </section>
+
+  <!-- Change my password -->
+  <section id="view-account" class="view" aria-labelledby="acc-h" hidden>
+    <h1 id="acc-h">Change my password</h1>
+    <p class="hint" id="acc-who"></p>
+    <form id="pw-form" class="card" novalidate>
+      <label for="pw-current">Current password</label>
+      <input id="pw-current" type="password" autocomplete="current-password" required maxlength="200">
+      <label for="pw-new">New password</label>
+      <input id="pw-new" type="password" autocomplete="new-password" required minlength="10" maxlength="200" aria-describedby="pw-rule">
+      <p id="pw-rule" class="hint">At least 10 characters. A short sentence is easy to remember and hard to guess.</p>
+      <label for="pw-confirm">Type the new password again</label>
+      <input id="pw-confirm" type="password" autocomplete="new-password" required maxlength="200">
+      <button type="submit" id="pw-btn">Change password</button>
+      <p id="pw-msg" class="msg" role="alert"></p>
     </form>
   </section>
 
