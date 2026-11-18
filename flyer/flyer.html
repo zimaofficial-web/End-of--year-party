@@ -19,7 +19,7 @@ body{background:var(--bg);color:var(--cream);font-family:'Space Grotesk',sans-se
 .r3{right:10px;top:10px;width:240px;height:240px;background:var(--accent)}
 .page{position:absolute;inset:0;padding:64px 80px 48px;display:flex;flex-direction:column}
 .eyebrow{font-size:28px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--accent)}
-h1{font-size:184px;line-height:.84;letter-spacing:-.045em;text-transform:uppercase;margin-top:18px;font-weight:700}
+h1{font-size:164px;line-height:.84;letter-spacing:-.045em;text-transform:uppercase;margin-top:18px;font-weight:700}
 h1 span{display:block;color:var(--accent)}
 .sub{font-size:56px;font-weight:700;text-transform:uppercase;letter-spacing:.01em;margin-top:22px}
 .tag{font-size:29px;margin-top:12px;color:rgba(246,241,230,.9);max-width:880px;line-height:1.3}
@@ -34,7 +34,9 @@ h1 span{display:block;color:var(--accent)}
 .qr{width:280px;background:#fff;color:var(--ink);border-radius:28px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
 .qr canvas{width:220px;height:220px;image-rendering:pixelated}
 .qr b{font-size:24px;text-transform:uppercase;letter-spacing:.08em;text-align:center;line-height:1.2}
-.foot{margin-top:20px;font-size:23px;color:rgba(246,241,230,.88)}
+.sponsor{margin-top:18px;font-size:27px;color:var(--cream)}
+.sponsor b{color:var(--accent)}
+.foot{margin-top:8px;font-size:23px;color:rgba(246,241,230,.88)}
 .qr .url{font-size:17px;font-weight:500;color:var(--ink);letter-spacing:.01em}
 </style>
 </head>
@@ -59,6 +61,7 @@ h1 span{display:block;color:var(--accent)}
     </div>
     <div class="qr"><canvas id="qr" width="230" height="230" role="img" aria-label="QR code to the registration page"></canvas><b>Scan to register</b><span class="url" id="url"></span></div>
   </div>
+  <p class="sponsor"><b>Sponsors welcome!</b> Partner with us: WhatsApp +234 808 063 3426</p>
   <div class="foot">
     A student-organised event for Miva students &middot; Bring your own refreshment
   </div>
