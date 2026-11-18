@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<!-- Miva IRL flyer, 1080 x 1350 (WhatsApp / Instagram portrait).
+     Rendered to PNG by scripts/render-flyer.mjs. Edit the text here, then re-run. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Miva IRL flyer</title>
+<style>
+@font-face{font-family:'Space Grotesk';font-weight:400;src:url(fonts/space-grotesk-latin-400-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:500;src:url(fonts/space-grotesk-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'Space Grotesk';font-weight:700;src:url(fonts/space-grotesk-latin-700-normal.woff2) format('woff2')}
+:root{--bg:#09314F;--deep:#06233A;--accent:#38BDF8;--red:#E43B31;--red-btn:#D0302A;--cream:#F6F1E6;--ink:#0B1530}
+*{box-sizing:border-box;margin:0}
+html,body{width:1080px;height:1350px;overflow:hidden}
+body{background:var(--bg);color:var(--cream);font-family:'Space Grotesk',sans-serif;position:relative}
+.ring{position:absolute;border-radius:50%}
+.r1{right:-190px;top:-190px;width:640px;height:640px;background:var(--red)}
+.r2{right:-90px;top:-90px;width:440px;height:440px;background:var(--bg)}
+.r3{right:10px;top:10px;width:240px;height:240px;background:var(--accent)}
+.page{position:absolute;inset:0;padding:64px 80px 48px;display:flex;flex-direction:column}
+.eyebrow{font-size:28px;font-weight:500;letter-spacing:.32em;text-transform:uppercase;color:var(--accent)}
+h1{font-size:184px;line-height:.84;letter-spacing:-.045em;text-transform:uppercase;margin-top:18px;font-weight:700}
+h1 span{display:block;color:var(--accent)}
+.sub{font-size:56px;font-weight:700;text-transform:uppercase;letter-spacing:.01em;margin-top:22px}
+.tag{font-size:29px;margin-top:12px;color:rgba(246,241,230,.9);max-width:880px;line-height:1.3}
+.facts{margin-top:32px;display:grid;grid-template-columns:1fr 1fr;gap:16px 40px;border-top:3px solid rgba(246,241,230,.25);padding-top:26px}
+.facts dt{font-size:22px;letter-spacing:.24em;text-transform:uppercase;color:var(--accent);font-weight:500}
+.facts dd{font-size:35px;font-weight:700;line-height:1.15;margin-top:4px}
+.bottom{margin-top:auto;padding-top:28px;display:flex;gap:28px;align-items:stretch}
+.ticket{flex:1;display:flex;flex-direction:column;justify-content:center;background:var(--red-btn);color:#fff;border-radius:28px;padding:30px 36px}
+.ticket .k{font-size:22px;letter-spacing:.24em;text-transform:uppercase;font-weight:700}
+.ticket .price{font-size:92px;font-weight:700;line-height:1;margin:8px 0 4px}
+.ticket .note{font-size:27px;font-weight:700;line-height:1.25}
+.qr{width:280px;background:#fff;color:var(--ink);border-radius:28px;padding:20px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px}
+.qr canvas{width:220px;height:220px;image-rendering:pixelated}
+.qr b{font-size:24px;text-transform:uppercase;letter-spacing:.08em;text-align:center;line-height:1.2}
+.foot{margin-top:20px;font-size:23px;color:rgba(246,241,230,.88)}
+.qr .url{font-size:17px;font-weight:500;color:var(--ink);letter-spacing:.01em}
+</style>
+</head>
+<body>
+<div class="ring r1"></div><div class="ring r2"></div><div class="ring r3"></div>
+<div class="page">
+  <p class="eyebrow">You're invited</p>
+  <h1>Miva <span>IRL</span></h1>
+  <p class="sub">Year-End Hangout</p>
+  <p class="tag">We study online. This time, we meet in real life. Music, games, dancing and good vibes all day.</p>
+  <dl class="facts">
+    <div><dt>Date</dt><dd>Tuesday<br>22 December 2026</dd></div>
+    <div><dt>Time</dt><dd>10 AM &ndash; 5:30 PM</dd></div>
+    <div><dt>Venue</dt><dd>National Children's<br>Park, Abuja</dd></div>
+    <div><dt>Dress code</dt><dd>Festival chic</dd></div>
+  </dl>
+  <div class="bottom">
+    <div class="ticket">
+      <p class="k">Ticket &middot; per person</p>
+      <p class="price">&#8358;3,000</p>
+      <p class="note">No refunds. Register to get your QR ticket.</p>
+    </div>
+    <div class="qr"><canvas id="qr" width="230" height="230" role="img" aria-label="QR code to the registration page"></canvas><b>Scan to register</b><span class="url" id="url"></span></div>
+  </div>
+  <div class="foot">
+    A student-organised event for Miva students &middot; Bring your own refreshment
+  </div>
+</div>
+<script src="../site/vendor/qrcode.js"></script>
+<script>
+  // Registration link (can be overridden: flyer.html?url=https://...)
+  var url = new URLSearchParams(location.search).get('url') || 'https://miva-fest.vercel.app/#register';
+  document.getElementById('url').textContent = url.replace(/^https:\/\//, '').replace(/\/#register$/, '');
+  var qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+  var n = qr.getModuleCount(), c = document.getElementById('qr'), g = c.getContext('2d');
+  var cell = Math.floor(230 / (n + 2)), off = Math.floor((230 - cell * n) / 2);
+  g.fillStyle = '#fff'; g.fillRect(0, 0, 230, 230); g.fillStyle = '#0B1530';
+  for (var r = 0; r < n; r++) for (var k = 0; k < n; k++) if (qr.isDark(r, k)) g.fillRect(off + k * cell, off + r * cell, cell, cell);
+  document.body.dataset.qr = url;
+</script>
+</body>
+</html>

@@ -18,6 +18,7 @@ Static site on **Vercel**, registrations stored in **Supabase**.
 | `supabase/functions/notify-rsvp/` | Edge Function that emails admins about new registrations |
 | `supabase/tests/` | Database tests |
 | `tests/` | Browser tests (form, CSP, mobile, accessibility) |
+| `flyer/` | Phone flyer (1080×1350): `flyer.html` source, `miva-irl-flyer.png` output. Re-render: `node scripts/render-flyer.mjs [url]` (checks the QR) |
 | `docs/` | Deploy guide, privacy runbook, email hook plan, decisions |
 
 ## Start here
