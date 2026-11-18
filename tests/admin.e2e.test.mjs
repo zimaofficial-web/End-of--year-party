@@ -225,7 +225,7 @@ test('CSV export: all rows, formula-looking cells neutralised', async () => {
   await login(page, 'admin@x.com');
   await page.waitForSelector('#reg-list li');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#export')]);
-  assert.equal(dl.suggestedFilename(), 'miva-fest-registrations.csv');
+  assert.equal(dl.suggestedFilename(), 'miva-irl-registrations.csv');
   const csv = readFileSync(await dl.path(), 'utf8');
   assert.equal(csv.trim().split('\r\n').length, 4);
   assert.match(csv, /"'=HYPERLINK\(""http:\/\/evil""\)"/);

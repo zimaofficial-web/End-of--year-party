@@ -1,4 +1,4 @@
-// Miva Fest admin: views and UI. All database access goes through api.js.
+// Miva IRL admin: views and UI. All database access goes through api.js.
 import { api, signIn, signOut, isSignedIn, currentEmail, ApiError } from './api.js';
 import { Scanner, parseTicketQr } from './gate.js';
 
@@ -199,7 +199,7 @@ $('export').addEventListener('click', () => {
   };
   const csv = [cols.join(','), ...rows.map((r) => cols.map((c) => cell(r[c])).join(','))].join('\r\n');
   const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-  const a = el('a', { href: url, download: 'miva-fest-registrations.csv' });
+  const a = el('a', { href: url, download: 'miva-irl-registrations.csv' });
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 });
@@ -211,7 +211,7 @@ const GATE = {
   not_paid: ['bad', 'NOT PAID', 'Payment not confirmed. Do not admit.'],
   not_attending: ['warn', 'NOT ATTENDING', 'They registered as not coming. No ticket.'],
   not_found: ['bad', 'NOT FOUND', 'No ticket matches this code.'],
-  not_ours: ['bad', 'NOT A MIVA FEST TICKET', 'This QR code is not one of our tickets.']
+  not_ours: ['bad', 'NOT A MIVA IRL TICKET', 'This QR code is not one of our tickets.']
 };
 
 function gateResult(res) {

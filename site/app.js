@@ -1,4 +1,4 @@
-/* Miva Fest registration form.
+/* Miva IRL registration form.
  *
  * Layers (top to bottom):
  *   1. CONTACT / MESSAGES  - all user-facing text in one place
@@ -165,10 +165,11 @@
     canvas.width = W; canvas.height = H;
     var g = canvas.getContext('2d');
     g.fillStyle = '#ffffff'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#1237A8'; g.fillRect(0, 0, W, 120);
-    g.fillStyle = '#F5B800'; g.font = 'bold 54px "Space Grotesk", system-ui, sans-serif';
+    g.fillStyle = '#09314F'; g.fillRect(0, 0, W, 120);
+    g.fillStyle = '#E43B31'; g.fillRect(0, 112, W, 8);
+    g.fillStyle = '#FFFFFF'; g.font = 'bold 54px "Space Grotesk", system-ui, sans-serif';
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText('MIVA FEST', W / 2, 62);
+    g.fillText('MIVA IRL', W / 2, 62);
     var x0 = (W - size) / 2, y0 = 140;
     g.fillStyle = '#ffffff'; g.fillRect(x0, y0, size, size);
     g.fillStyle = '#000000';
@@ -178,7 +179,7 @@
       }
     }
     var ty = y0 + size + 50;
-    g.fillStyle = '#0B1530'; g.font = 'bold 48px "Space Grotesk", system-ui, sans-serif';
+    g.fillStyle = '#09314F'; g.font = 'bold 48px "Space Grotesk", system-ui, sans-serif';
     g.fillText(code, W / 2, ty);
     g.font = '28px "Space Grotesk", system-ui, sans-serif';
     var shown = name.length > 32 ? name.slice(0, 31) + '\u2026' : name;
@@ -212,7 +213,7 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'miva-fest-ticket-' + code + '.png';
+        a.download = 'miva-irl-ticket-' + code + '.png';
         document.body.appendChild(a);
         a.click();
         a.remove();

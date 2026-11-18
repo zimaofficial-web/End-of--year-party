@@ -1,4 +1,4 @@
-// Miva Fest admin: camera QR scanner for the gate.
+// Miva IRL admin: camera QR scanner for the gate.
 // Uses the browser's built-in BarcodeDetector when available (most Android
 // phones), otherwise the bundled jsQR library (iPhone). Frames never leave
 // the phone; only the token read from the QR is sent to the database.
@@ -6,7 +6,7 @@
 const QR_PREFIX = 'MIVAFEST1:';
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
-// Turn raw QR text into a ticket token, or null if it isn't a Miva Fest ticket.
+// Turn raw QR text into a ticket token, or null if it isn't a Miva IRL ticket.
 export function parseTicketQr(text) {
   if (typeof text !== 'string' || !text.startsWith(QR_PREFIX)) return null;
   const token = text.slice(QR_PREFIX.length).trim();

@@ -250,7 +250,7 @@ test('"Save ticket" downloads a PNG named after the ticket code', async () => {
   await page.click('#send');
   await page.waitForSelector('#result .save-ticket');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#result .save-ticket')]);
-  assert.equal(download.suggestedFilename(), 'miva-fest-ticket-MF-0042.png');
+  assert.equal(download.suggestedFilename(), 'miva-irl-ticket-MF-0042.png');
   const path = await download.path();
   const head = readFileSync(path).subarray(0, 8).toString('hex');
   assert.equal(head, '89504e470d0a1a0a', 'file is a PNG');

@@ -48,7 +48,7 @@ export function isValidRecord(r: unknown): r is Rsvp {
 
 export function buildEmail(r: Rsvp): { subject: string; html: string; text: string } {
   const coming = r.attending === 'yes' ? 'Yes' : 'No';
-  const subject = `Miva Fest RSVP: ${oneLine(r.name)} (${coming}) - ${oneLine(r.ticket_code, 20)}`;
+  const subject = `Miva IRL RSVP: ${oneLine(r.name)} (${coming}) - ${oneLine(r.ticket_code, 20)}`;
   const rows: [string, string][] = [
     ['Ticket code', r.ticket_code],
     ['Full name', r.name],
@@ -62,17 +62,17 @@ export function buildEmail(r: Rsvp): { subject: string; html: string; text: stri
   const cell = 'padding:10px 12px;border:1px solid #c9c2b2;font-family:Arial,sans-serif;font-size:15px;vertical-align:top';
   const html =
     `<div style="font-family:Arial,sans-serif;color:#0B1530;max-width:640px">` +
-    `<p style="font-size:16px">Someone just registered for <b>Miva Fest</b>.</p>` +
+    `<p style="font-size:16px">Someone just registered for <b>Miva IRL: Year-End Hangout</b>.</p>` +
     `<table role="presentation" style="border-collapse:collapse;width:100%">` +
-    `<tr><th style="${cell};background:#1237A8;color:#fff;text-align:left">Field</th>` +
-    `<th style="${cell};background:#1237A8;color:#fff;text-align:left">Answer</th></tr>` +
+    `<tr><th style="${cell};background:#09314F;color:#fff;text-align:left">Field</th>` +
+    `<th style="${cell};background:#09314F;color:#fff;text-align:left">Answer</th></tr>` +
     rows.map(([k, v]) => `<tr><td style="${cell};font-weight:bold;width:38%">${escapeHtml(k)}</td>` +
       `<td style="${cell};font-family:Consolas,monospace">${escapeHtml(v)}</td></tr>`).join('') +
     `</table>` +
     `<p style="font-size:15px;text-align:center;margin-top:18px"><b>Submitted at ${escapeHtml(lagosTime(r.created_at))}</b></p>` +
-    `<p style="font-size:13px;color:#555">You get this because you switched on registration emails in the Miva Fest admin site.</p>` +
+    `<p style="font-size:13px;color:#555">You get this because registration emails are switched on for you in the Miva IRL admin site.</p>` +
     `</div>`;
-  const text = `Someone just registered for Miva Fest.\n\n` +
+  const text = `Someone just registered for Miva IRL: Year-End Hangout.\n\n` +
     rows.map(([k, v]) => `${k}: ${oneLine(v, 300)}`).join('\n') +
     `\n\nSubmitted at ${lagosTime(r.created_at)}\n`;
   return { subject, html, text };

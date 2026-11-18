@@ -6,7 +6,7 @@
 // Secrets (Supabase > Edge Functions > Secrets), never in git:
 //   RESEND_API_KEY   from resend.com
 //   WEBHOOK_SECRET   any long random string; the same value goes in the webhook header
-//   MAIL_FROM        optional, e.g. "Miva Fest <rsvp@your-domain>" once a domain is verified
+//   MAIL_FROM        optional, e.g. "Miva IRL <rsvp@your-domain>" once a domain is verified
 // Provided automatically by Supabase: SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 //
 // Who gets the email: every row in public.admins with receives_emails = true
@@ -63,7 +63,7 @@ Deno.serve(async (req) => {
       method: 'POST',
       headers: { Authorization: `Bearer ${env('RESEND_API_KEY')}`, 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        from: Deno.env.get('MAIL_FROM') || 'Miva Fest <onboarding@resend.dev>',
+        from: Deno.env.get('MAIL_FROM') || 'Miva IRL <onboarding@resend.dev>',
         to, subject, html, text
       })
     });
