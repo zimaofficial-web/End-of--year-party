@@ -148,8 +148,31 @@ function renderRegistrations() {
         onclick: (ev) => togglePaid(r, ev.currentTarget)
       }));
     }
+    if (role === 'super_admin') {
+      actions.append(el('button', {
+        type: 'button', class: 'danger', text: 'Delete',
+        'aria-label': 'Delete registration ' + r.ticket_code + ' ' + r.name,
+        onclick: (ev) => deleteRegistration(r, ev.currentTarget)
+      }));
+    }
     return el('li', { class: 'row' }, who, actions);
   }));
+}
+
+// Super admin only (the database refuses everyone else too). The code must be
+// typed back, so nobody deletes the wrong person by a stray tap.
+async function deleteRegistration(r, btn) {
+  const typed = prompt(`Delete ${r.name} (${r.ticket_code}) for good?\n` +
+    `This can't be undone. Type the ticket code ${r.ticket_code} to confirm:`);
+  if (typed === null) return;
+  if (typed.trim().toUpperCase() !== r.ticket_code) { flash('Code didn\u2019t match. Nothing was deleted.', true); return; }
+  btn.disabled = true;
+  const res = await guard(() => api.deleteRegistration(r.ticket_code, typed.trim()));
+  btn.disabled = false;
+  if (!res) return;
+  if (res.result === 'ok') { flash(`${r.ticket_code} deleted.`); loadRegistrations(); }
+  else if (res.result === 'not_found') { flash('Already deleted. Refreshing the list.', true); loadRegistrations(); }
+  else flash('Code didn\u2019t match. Nothing was deleted.', true);
 }
 
 async function togglePaid(r, btn) {

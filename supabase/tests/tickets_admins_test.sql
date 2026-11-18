@@ -74,14 +74,14 @@ select pg_temp.check((select bool_and(p.prosecdef and 'search_path=""' = any(p.p
                       from pg_proc p join pg_roles r on r.oid = p.proowner
                       where p.pronamespace = 'public'::regnamespace
                         and p.proname in ('current_admin_role','admin_list_rsvps','admin_set_paid','gate_check_in',
-                                          'super_list_admins','super_upsert_admin','super_remove_admin')),
-                     'all 7 admin functions: SECURITY DEFINER, search_path pinned, owned by non-superuser rsvp_admin_ops');
+                                          'super_list_admins','super_upsert_admin','super_remove_admin','super_delete_rsvp')),
+                     'all 8 admin functions: SECURITY DEFINER, search_path pinned, owned by non-superuser rsvp_admin_ops');
 select pg_temp.check((select bool_and(not has_function_privilege('anon', p.oid, 'execute')
                                       and not has_function_privilege('public', p.oid, 'execute')
                                       and has_function_privilege('authenticated', p.oid, 'execute'))
                       from pg_proc p where p.pronamespace = 'public'::regnamespace
                         and p.proname in ('current_admin_role','admin_list_rsvps','admin_set_paid','gate_check_in',
-                                          'super_list_admins','super_upsert_admin','super_remove_admin')),
+                                          'super_list_admins','super_upsert_admin','super_remove_admin','super_delete_rsvp')),
                      'admin functions: EXECUTE for authenticated only (not anon, not PUBLIC)');
 select pg_temp.check(not has_table_privilege('authenticated', 'public.rsvps', 'select')
                      and not has_table_privilege('authenticated', 'public.rsvps', 'update')
@@ -209,6 +209,28 @@ select pg_temp.check(not exists (select 1 from public.admins where email = 'new.
                      '... and the row is gone');
 select pg_temp.check(pg_temp.as_user('new.helper@example.com', 'select coalesce(public.current_admin_role(), $$none$$)') = 'none',
                      'a removed admin loses access immediately');
+
+-- ------------------------------------------------------ deleting registrations
+select pg_temp.check(pg_temp.as_anon($q$select public.super_delete_rsvp('MF-0001','MF-0001')::text$q$) = 'ERR:42501',
+                     'anon cannot delete registrations');
+select pg_temp.check(pg_temp.as_user(:'ADMIN', format('select public.super_delete_rsvp(%L, %L)::text',
+                       (select r->>'ticket_code' from t_no), (select r->>'ticket_code' from t_no))) = 'ERR:42501',
+                     'regular admin cannot delete registrations');
+select pg_temp.check(pg_temp.as_user(:'SUPER', format('select public.super_delete_rsvp(%L, %L)->>$$result$$',
+                       (select r->>'ticket_code' from t_no), 'MF-0000')) = 'confirm_mismatch',
+                     'delete with the wrong confirmation code is refused');
+select pg_temp.check(exists (select 1 from public.rsvps where email = 'no1@example.com'),
+                     '... and nothing was deleted');
+select pg_temp.check(pg_temp.as_user(:'SUPER', format('select public.super_delete_rsvp(%L, %L)->>$$result$$',
+                       (select r->>'ticket_code' from t_no), lower((select r->>'ticket_code' from t_no)))) = 'ok',
+                     'super admin deletes a registration after typing its code (case-insensitive)');
+select pg_temp.check(not exists (select 1 from public.rsvps where email = 'no1@example.com'),
+                     '... and the row is really gone');
+select pg_temp.check(pg_temp.as_user(:'SUPER', $q$select public.super_delete_rsvp('MF-99999','MF-99999')->>'result'$q$) = 'not_found',
+                     'deleting an unknown code -> not_found');
+select pg_temp.check(pg_temp.as_user(:'ADMIN', 'select count(*)::text from public.rsvps') = 'ERR:42501'
+                     and not has_table_privilege('authenticated', 'public.rsvps', 'delete'),
+                     'logged-in users still cannot delete from the table directly');
 
 -- ---------------------------------------------- constraints on new columns
 select pg_temp.check((select count(*) = 0 from public.rsvps where checked_in_at is not null and not paid),

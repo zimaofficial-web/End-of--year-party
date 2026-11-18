@@ -53,9 +53,9 @@ select pg_temp.check(not exists (select 1 from pg_policies where schemaname='pub
                                    and (roles && '{public,anon,authenticated}'::name[] or cmd = 'ALL')),
                      'no rsvps policy applies to public/anon/authenticated, and none is FOR ALL');
 select pg_temp.check((select array_agg(cmd || ':' || array_to_string(roles, ',') order by cmd)
-                        = '{INSERT:rsvp_writer,SELECT:rsvp_admin_ops,UPDATE:rsvp_admin_ops}'
+                        = '{DELETE:rsvp_admin_ops,INSERT:rsvp_writer,SELECT:rsvp_admin_ops,UPDATE:rsvp_admin_ops}'
                       from pg_policies where schemaname='public' and tablename='rsvps'),
-                     'rsvps policies: INSERT for rsvp_writer only; SELECT/UPDATE for rsvp_admin_ops only; no DELETE');
+                     'rsvps policies: INSERT for rsvp_writer only; SELECT/UPDATE/DELETE for rsvp_admin_ops only');
 
 select pg_temp.check((select p.prosecdef and 'search_path=""' = any(p.proconfig)
                         and r.rolname = 'rsvp_writer' and not r.rolsuper and not r.rolbypassrls

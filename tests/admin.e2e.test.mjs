@@ -106,6 +106,12 @@ function fakeDb(roleFor = { 'super@x.com': 'super_admin', 'admin@x.com': 'admin'
         else db.admins.push({ email: body.p_email, role: body.p_role, receives_emails: body.p_receives_emails, created_at: '2026-11-18T00:00:00Z' });
         return json(200, { result: 'ok' });
       }
+      if (fn === 'super_delete_rsvp') {
+        if (String(body.p_confirm).toUpperCase() !== body.p_ticket_code) return json(200, { result: 'confirm_mismatch' });
+        const before = db.rows.length;
+        db.rows = db.rows.filter((x) => x.ticket_code !== body.p_ticket_code);
+        return json(200, db.rows.length < before ? { result: 'ok', ticket_code: body.p_ticket_code } : { result: 'not_found' });
+      }
       if (fn === 'super_remove_admin') { db.admins = db.admins.filter((x) => x.email !== body.p_email); return json(200, { result: 'ok' }); }
       return json(404, { message: 'unknown' });
     }
@@ -114,12 +120,13 @@ function fakeDb(roleFor = { 'super@x.com': 'super_admin', 'admin@x.com': 'admin'
 }
 
 async function open(db, opts = {}, b = browser) {
-  const context = await b.newContext(opts);
+  const { promptAnswer, ...ctxOpts } = opts;
+  const context = await b.newContext(ctxOpts);
   const page = await context.newPage();
   const problems = [];
   page.on('console', (m) => { if (/Content Security Policy|Refused to/i.test(m.text())) problems.push(m.text()); });
   page.on('pageerror', (e) => problems.push('pageerror: ' + e.message));
-  page.on('dialog', (d) => d.accept());
+  page.on('dialog', (d) => (d.type() === 'prompt' ? d.accept(promptAnswer ?? '') : d.accept()));
   await page.route(`${SUPA}/**`, (r) => db.handle(r));
   await page.goto(base + '/');
   await page.waitForSelector('#view-login:not([hidden])');
@@ -266,6 +273,41 @@ test('super admin: Admins tab, add admin, switch emails, remove', async () => {
   await page.click('button[aria-label="Remove new@x.com"]');
   await page.waitForFunction(() => document.querySelectorAll('#admin-list li').length === 2);
   assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('regular admin sees no Delete buttons', async () => {
+  const db = fakeDb();
+  const { page, context } = await open(db);
+  await login(page, 'admin@x.com');
+  await page.waitForSelector('#reg-list li');
+  assert.equal(await page.locator('#reg-list button.danger').count(), 0);
+  await context.close();
+});
+
+test('super admin: Delete asks for the code; right code deletes', async () => {
+  const db = fakeDb();
+  const { page, context, problems } = await open(db, { promptAnswer: 'mf-0003' });
+  await login(page, 'super@x.com');
+  await page.waitForSelector('#reg-list li');
+  assert.equal(await page.locator('#reg-list button.danger').count(), 3);
+  await page.click('button[aria-label="Delete registration MF-0003 Not Coming"]');
+  await page.waitForFunction(() => /MF-0003 deleted/.test(document.getElementById('flash').textContent));
+  assert.deepEqual(rpcCalls(db, 'super_delete_rsvp')[0].body, { p_ticket_code: 'MF-0003', p_confirm: 'mf-0003' });
+  await page.waitForFunction(() => document.querySelectorAll('#reg-list li').length === 2);
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('super admin: Delete with the wrong code (or cancel) deletes nothing', async () => {
+  const db = fakeDb();
+  const { page, context } = await open(db, { promptAnswer: 'MF-0001' });
+  await login(page, 'super@x.com');
+  await page.waitForSelector('#reg-list li');
+  await page.click('button[aria-label="Delete registration MF-0003 Not Coming"]');
+  await page.waitForFunction(() => /Nothing was deleted/.test(document.getElementById('flash').textContent));
+  assert.equal(rpcCalls(db, 'super_delete_rsvp').length, 0);
+  assert.equal(await page.locator('#reg-list li').count(), 3);
   await context.close();
 });
 

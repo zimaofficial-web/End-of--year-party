@@ -116,7 +116,9 @@ export const api = {
   listAdmins: () => rpc('super_list_admins'),
   upsertAdmin: (email, role, receivesEmails) =>
     rpc('super_upsert_admin', { p_email: email, p_role: role, p_receives_emails: receivesEmails }),
-  removeAdmin: (email) => rpc('super_remove_admin', { p_email: email })
+  removeAdmin: (email) => rpc('super_remove_admin', { p_email: email }),
+  deleteRegistration: (ticketCode, confirmCode) =>
+    rpc('super_delete_rsvp', { p_ticket_code: ticketCode, p_confirm: confirmCode })
 };
 
 export function isSignedIn() { return !!load(); }

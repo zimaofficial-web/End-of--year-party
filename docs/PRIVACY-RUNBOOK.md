@@ -17,6 +17,11 @@ Click **Download CSV** (or copy the result) and send it to them.
 
 ## Someone asks: "Delete my details"
 
+**Easiest:** log in to https://miva-fest-admin.vercel.app as the super admin, find them on
+**Registrations**, tap **Delete**, and type their ticket code to confirm. Only super admins see this button.
+
+**Or with SQL:**
+
 1. Check it's really them: reply from the same email or WhatsApp number they registered with.
 2. Run:
 
