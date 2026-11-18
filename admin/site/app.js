@@ -56,14 +56,15 @@ const fmt = (iso) => iso ? new Date(iso).toLocaleString('en-NG', { dateStyle: 'm
 // ------------------------------------------------------------------ views
 function show(view) {
   if (!role && view !== 'login') view = 'login';
-  if (view === 'admins' && role !== 'super_admin') view = 'registrations';
+  // Admins page and My password are for the super admin only (regular admins share a password the super admin sets).
+  if ((view === 'admins' || view === 'account') && role !== 'super_admin') view = 'registrations';
   if (view !== 'gate' && scanner) stopCamera();
   for (const v of document.querySelectorAll('.view')) v.hidden = v.id !== 'view-' + view;
   $('nav').hidden = !role;
   for (const a of document.querySelectorAll('#nav a')) {
     if (a.dataset.view === view) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
   }
-  document.querySelector('[data-super]').hidden = role !== 'super_admin';
+  for (const n of document.querySelectorAll('[data-super]')) n.hidden = role !== 'super_admin';
   if (view === 'registrations') loadRegistrations();
   if (view === 'admins') loadAdmins();
   if (view === 'account') $('acc-who').textContent = 'Logged in as ' + currentEmail();

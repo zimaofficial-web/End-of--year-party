@@ -60,7 +60,9 @@ Supabase → **Database** → **Webhooks** → **Create a new hook**:
 4. **Gate** → **Start camera** → scan the saved QR → **ADMIT**. Scan again → **ALREADY USED**.
 
 ## Passwords
-- Any admin can change their own password: admin site → **My password** (current password + new one, at least 10 characters).
+- Regular admins **share one password** that the super admin sets when creating their logins in Supabase. The super admin's own password is different.
+- Only the super admin sees **My password** (admin site) to change their own. This hides the page; it is not a hard lock (Supabase still lets a logged-in user change their own password through its API).
+- Change the shared admin password after the event.
 - Forgot it? The super admin deletes that login in Supabase (Authentication → Users) and creates it again with the same email.
   Admin access is tied to the email, so nothing else is lost.
 

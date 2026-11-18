@@ -319,7 +319,7 @@ test('super admin: Delete with the wrong code (or cancel) deletes nothing', asyn
 
 async function openPasswordPage(db) {
   const { page, context, problems } = await open(db);
-  await login(page, 'admin@x.com');
+  await login(page, 'super@x.com');
   await page.waitForSelector('#reg-list li');
   await page.click('a[data-view=account]');
   await page.waitForSelector('#view-account:not([hidden])');
@@ -330,17 +330,30 @@ const fillPw = async (page, cur, next, again = next) => {
   await page.click('#pw-btn');
 };
 
-test('change password: every admin has the page; success checks the current password, then updates', async () => {
+test('change password (super admin): checks the current password, then updates', async () => {
   const db = fakeDb();
   const { page, context, problems } = await openPasswordPage(db);
-  assert.equal(await page.innerText('#acc-who'), 'Logged in as admin@x.com');
+  assert.equal(await page.innerText('#acc-who'), 'Logged in as super@x.com');
   await fillPw(page, 'right-password', 'a long new passphrase');
   await page.waitForFunction(() => /Password changed/.test(document.getElementById('flash').textContent));
   const tokenCalls = db.calls.filter((c) => c.path === '/auth/v1/token?grant_type=password');
-  assert.deepEqual(tokenCalls.at(-1).body, { email: 'admin@x.com', password: 'right-password' }, 'current password re-checked');
-  assert.deepEqual(db.newPassword, { who: 'admin@x.com', password: 'a long new passphrase' });
+  assert.deepEqual(tokenCalls.at(-1).body, { email: 'super@x.com', password: 'right-password' }, 'current password re-checked');
+  assert.deepEqual(db.newPassword, { who: 'super@x.com', password: 'a long new passphrase' });
   assert.equal(await page.inputValue('#pw-new'), '', 'boxes cleared');
   assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('regular admin: no My password tab, and #account sends them back to registrations', async () => {
+  const db = fakeDb();
+  const { page, context } = await open(db);
+  await login(page, 'admin@x.com');
+  await page.waitForSelector('#reg-list li');
+  assert.equal(await page.isHidden('a[data-view=account]'), true);
+  assert.equal(await page.isHidden('a[data-view=admins]'), true);
+  await page.evaluate(() => { location.hash = '#account'; });
+  await page.waitForFunction(() => location.hash === '#registrations');
+  assert.equal(await page.isHidden('#view-account'), true);
   await context.close();
 });
 
