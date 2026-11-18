@@ -73,6 +73,13 @@ select pg_temp.check((select array_agg(column_name::text order by column_name::t
                      = '{attending,bringing,checked_in_at,checked_in_by,consent,consent_at,created_at,email,id,name,notified,paid,paid_at,paid_by,phone,policy_version,ticket_code,ticket_token}',
                      'rsvps has exactly the agreed columns: 11 form/consent + ticket, payment and check-in (data minimisation)');
 
+select pg_temp.check((select bool_and(relrowsecurity and relforcerowsecurity) from pg_class
+                      where oid in ('private.rsvp_attempts'::regclass, 'private.settings'::regclass)),
+                     'RLS enabled AND forced on private.rsvp_attempts and private.settings');
+select pg_temp.check(not exists (select 1 from pg_policies where schemaname = 'private'
+                                   and (roles <> '{rsvp_writer}' or cmd = 'ALL')),
+                     'private-table policies exist only for rsvp_writer, one per operation, none FOR ALL');
+
 -- --------------------------------------------------- anon direct access denied
 select pg_temp.check(pg_temp.try_as('anon', 'select * from public.rsvps') = '42501',
                      'anon SELECT on rsvps -> permission denied (42501)');

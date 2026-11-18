@@ -43,6 +43,19 @@ do \$\$ begin
     create role supa_admin nologin createrole bypassrls;
   end if;
 end \$\$;
+-- As on newer Supabase projects: RLS is switched on automatically for every
+-- table created (in any schema). This is what broke the live rate-limit table.
+create or replace function public._test_auto_enable_rls() returns event_trigger
+language plpgsql as \$\$
+declare r record;
+begin
+  for r in select * from pg_event_trigger_ddl_commands() where command_tag = 'CREATE TABLE' loop
+    execute format('alter table %s enable row level security', r.object_identity);
+  end loop;
+end \$\$;
+create event trigger _test_auto_enable_rls on ddl_command_end
+  when tag in ('CREATE TABLE') execute function public._test_auto_enable_rls();
+
 -- As on Supabase: the admin role owns the database, and schema public is
 -- owned by pg_database_owner (the PostgreSQL 15+ default), i.e. by the admin.
 alter database $DB owner to supa_admin;
