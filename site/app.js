@@ -151,6 +151,43 @@
     result.appendChild(t);
   }
 
+  // ------------------------------------------------------- email copy
+  // After a registration is SAVED, send a copy to the organisers' inbox via
+  // FormSubmit (formsubmit.co). Best effort: if it fails, the registration is
+  // still saved and visible in the admin site. Never includes the QR token.
+  // To switch to FormSubmit's secret alias after activation, replace the
+  // email in FORMSUBMIT_TO with the alias string FormSubmit sends you.
+  var FORMSUBMIT_TO = 'zimaofficial001@gmail.com';
+  var emailCopy = {
+    TIMEOUT_MS: 10000,
+    send: function (data, code) {
+      var controller = new AbortController();
+      var timer = setTimeout(function () { controller.abort(); }, emailCopy.TIMEOUT_MS);
+      var coming = data.attending === 'yes' ? 'Yes' : 'No';
+      var oneLine = function (v) { return String(v || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').slice(0, 80); };
+      return fetch('https://formsubmit.co/ajax/' + encodeURIComponent(FORMSUBMIT_TO), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        body: JSON.stringify({
+          _subject: 'Miva IRL RSVP: ' + oneLine(data.name) + ' (' + coming + ') - ' + (code || 'no code'),
+          _template: 'table',
+          _captcha: 'false',
+          'Ticket code': code || '-',
+          'Full name': data.name,
+          'Email address': data.email,
+          'Phone / WhatsApp': data.phone,
+          'Coming': coming,
+          'Bringing': data.bringing || '-',
+          'Submitted at': new Date().toLocaleString('en-GB', { timeZone: 'Africa/Lagos' }) + ' (WAT)'
+        }),
+        signal: controller.signal,
+        credentials: 'omit',
+        cache: 'no-store',
+        referrerPolicy: 'strict-origin-when-cross-origin'
+      }).catch(function () { /* best effort */ }).finally(function () { clearTimeout(timer); });
+    }
+  };
+
   // ------------------------------------------------------------- ticket
   // The QR holds only "MIVAFEST1:" + a random secret token, never personal data.
   // The gate page (admin site) looks the token up.
@@ -268,6 +305,7 @@
 
     switch (answer.status) {
       case 'created':
+        emailCopy.send(data, answer.ticketCode);   // not awaited: never delays the ticket
         if (data.attending === 'yes') {
           show(MESSAGES.createdYes(data.name, answer.ticketCode), 'ok');
           if (answer.ticketCode && answer.ticketToken) showTicket(data.name, answer.ticketCode, answer.ticketToken);

@@ -108,7 +108,7 @@ select pg_temp.check(pg_temp.reg('10.0.0.1', '  Ada Obi  ', '  Ada.Obi@Example.C
                      'valid registration -> created');
 select pg_temp.check((select name = 'Ada Obi' and email = 'ada.obi@example.com' and phone = '+2348080633426'
                         and attending = 'yes' and bringing = 'Zobo' and consent
-                        and consent_at is not null and policy_version = 'v1-2026-11-17'
+                        and consent_at is not null and policy_version = 'v2-2026-11-18'
                         and notified = false and created_at is not null
                       from public.rsvps where email = 'ada.obi@example.com'),
                      'stored row is normalised; consent_at + policy_version set server-side; notified=false');

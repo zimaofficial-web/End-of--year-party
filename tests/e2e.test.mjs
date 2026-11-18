@@ -84,7 +84,9 @@ after(async () => {
 
 // A page with: CSP-violation capture, fonts stubbed, RPC mocked by `handler`.
 async function openPage(handler, opts = {}) {
-  const context = await browser.newContext(opts);
+  const { mailFails, ...ctxOpts } = opts;
+  opts = { mailFails };
+  const context = await browser.newContext(ctxOpts);
   const page = await context.newPage();
   const problems = [];
   page.on('console', (m) => { if (/Content Security Policy|Refused to/i.test(m.text())) problems.push(m.text()); });
@@ -97,7 +99,13 @@ async function openPage(handler, opts = {}) {
     return route.fulfill({ status: 500, body: 'unexpected call' });
   });
   await page.goto(base + '/');
-  return { page, context, calls, problems };
+  const mails = [];
+  await page.route('https://formsubmit.co/**', (route) => {
+    mails.push({ url: route.request().url(), headers: route.request().headers(), body: route.request().postDataJSON() });
+    if (opts.mailFails) return route.abort('failed');
+    return route.fulfill({ status: 200, contentType: 'application/json', body: '{"success":"true"}' });
+  });
+  return { page, context, calls, problems, mails };
 }
 const okJson = (v) => (route) => route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify(v) });
 
@@ -208,6 +216,66 @@ test('valid "yes" submit: button disabled while sending, correct payload, succes
   assert.equal(calls[0].headers.apikey, ANON_JWT);
   assert.equal(await page.inputValue('#name'), '', 'form reset after success');
   assert.deepEqual(problems, []);
+  await context.close();
+});
+
+const waitMails = (mails, n) => new Promise((ok, fail) => {
+  const t0 = Date.now();
+  (function poll() { if (mails.length >= n) return ok(); if (Date.now() - t0 > 5000) return fail(new Error('no email copy')); setImmediate(poll); })();
+});
+
+test('email copy: after a saved "yes" registration, FormSubmit gets the details (no QR token)', async () => {
+  const { page, context, mails, problems } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }));
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForSelector('#result canvas');
+  await waitMails(mails, 1);
+  assert.equal(mails.length, 1);
+  assert.equal(mails[0].url, 'https://formsubmit.co/ajax/zimaofficial001%40gmail.com');
+  const b = mails[0].body;
+  assert.equal(b._subject, 'Miva IRL RSVP: Ada Obi (Yes) - MF-0042');
+  assert.doesNotMatch(b._subject, /\p{Extended_Pictographic}/u);
+  assert.equal(b['Full name'], 'Ada Obi');
+  assert.equal(b['Email address'], 'ada.obi@example.com');
+  assert.equal(b['Phone / WhatsApp'], '+2348080633426');
+  assert.equal(b['Bringing'], 'Zobo');
+  assert.equal(b._template, 'table');
+  assert.ok(!JSON.stringify(b).includes(TOKEN), 'QR token never emailed');
+  assert.deepEqual(problems, [], 'allowed by the CSP');
+  await context.close();
+});
+
+test('email copy: not sent for duplicate, invalid, rate-limited, error or honeypot', async () => {
+  for (const reply of [{ status: 'duplicate' }, { status: 'invalid' }, { status: 'rate_limited' }, { status: 'rejected' }]) {
+    const { page, context, mails } = await openPage(okJson(reply));
+    await fillValid(page);
+    await page.click('#send');
+    await page.waitForFunction(() => !document.getElementById('result').hidden);
+    assert.equal(mails.length, 0, reply.status);
+    await context.close();
+  }
+  const { page, context, mails } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }));
+  await fillValid(page);
+  await page.evaluate(() => { document.getElementById('site').value = 'bot'; });
+  await page.click('#send');
+  await page.waitForFunction(() => !document.getElementById('result').hidden);
+  assert.equal(mails.length, 0, 'honeypot');
+  await context.close();
+});
+
+test('email copy failing does not affect the registration', async () => {
+  const { page, context, mails } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }), { mailFails: true });
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForSelector('#result canvas');
+  assert.match(await resultText(page), /Registration received/);
+  await waitMails(mails, 1);
+  await context.close();
+});
+
+test('privacy note says a copy is emailed through FormSubmit', async () => {
+  const { page, context } = await openPage(null);
+  assert.match(await page.innerText('#consent-note'), /copy is emailed to the organisers through the FormSubmit email service/);
   await context.close();
 });
 

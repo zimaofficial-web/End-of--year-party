@@ -3,6 +3,8 @@
 What we store: name, email, phone, yes/no, what they're bringing (optional), consent, when they agreed and which privacy text they agreed to (`policy_version`).
 Nothing else. No IP addresses (only a salted hash for spam protection, deleted after 24 hours).
 
+A copy of each new registration is emailed to the organisers through **FormSubmit** (formsubmit.co). Those emails live in the organisers' inboxes: when deleting someone's data, also delete their registration email.
+
 All queries below go in **Supabase → SQL Editor**. Replace `person@example.com` with the email the person gave.
 
 ## Someone asks: "What do you have about me?"
