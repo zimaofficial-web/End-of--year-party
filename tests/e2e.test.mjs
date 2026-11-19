@@ -285,9 +285,14 @@ test('hero: event name shown, and title text never overlaps the corner circles (
     assert.match(await page.innerText('h1'), /MIVA\s+WRAP\s*PARTY/i);
     assert.equal(await page.innerText('.hero .sub'), '2026');
     const hit = await page.evaluate(() => {
+      // rectangles of the actual text (letters), not of the block boxes around them
       const lines = [];
       for (const sel of ['.hero .eyebrow', '.hero h1', '.hero .sub', '.hero .tag', '.hero .organised', '.hero .cta']) {
-        const rg = document.createRange(); rg.selectNodeContents(document.querySelector(sel)); lines.push(...rg.getClientRects());
+        const walk = document.createTreeWalker(document.querySelector(sel), NodeFilter.SHOW_TEXT);
+        while (walk.nextNode()) {
+          if (!walk.currentNode.textContent.trim()) continue;
+          const rg = document.createRange(); rg.selectNodeContents(walk.currentNode); lines.push(...rg.getClientRects());
+        }
       }
       const r = document.querySelector('.r1').getBoundingClientRect();
       const cx = r.left + r.width / 2, cy = r.top + r.height / 2, rad = r.width / 2;
@@ -483,6 +488,13 @@ test('motion allowed: every section is fully visible once scrolled into view', a
     .filter((a) => a.effect && a.effect.getComputedTiming().iterations !== Infinity)
     .map((a) => a.finished)));
   assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.hero h1')).opacity), '1');
+  // after the title animation, every word sits in place, fully shown
+  const end = await page.evaluate(() => ['.t-miva', '.t-wrap', '.t-party', '.hero .sub'].map((sel) => {
+    const cs = getComputedStyle(document.querySelector(sel));
+    const t = cs.transform === 'matrix(1, 0, 0, 1, 0, 0)' ? 'none' : cs.transform;   // identity = in place
+    return [cs.opacity, t];
+  }));
+  assert.deepEqual(end, [['1', 'none'], ['1', 'none'], ['1', 'none'], ['1', 'none']]);
   const n = await page.locator('.reveal .wrap').count();
   for (let i = 0; i < n; i++) {
     const el = page.locator('.reveal .wrap').nth(i);
@@ -512,10 +524,26 @@ test('mobile (375px): no horizontal scroll, form fits, tap targets >= 44px', asy
 test('reduced motion: animations are switched off', async () => {
   const { page, context } = await openPage(null, { reducedMotion: 'reduce' });
   const anim = await page.evaluate(() => [
-    getComputedStyle(document.querySelector('h1')).animationName,
+    getComputedStyle(document.querySelector('.t-miva')).animationName,
+    getComputedStyle(document.querySelector('.t-wrap')).animationName,
+    getComputedStyle(document.querySelector('.t-party')).animationName,
+    getComputedStyle(document.querySelector('.hero .sub')).animationName,
     getComputedStyle(document.querySelector('.r1')).animationName
   ]);
-  assert.deepEqual(anim, ['none', 'none']);
+  assert.deepEqual(anim, ['none', 'none', 'none', 'none', 'none']);
+  await context.close();
+});
+
+test('title animation order: MIVA, then WRAP comes out of it, then PARTY, then 2026', async () => {
+  const { page, context } = await openPage(null, { reducedMotion: 'no-preference' });
+  const a = await page.evaluate(() => ['.t-miva', '.t-wrap', '.t-party', '.hero .sub'].map((sel) => {
+    const cs = getComputedStyle(document.querySelector(sel));
+    return { name: cs.animationName, delay: parseFloat(cs.animationDelay) };
+  }));
+  assert.deepEqual(a.map((x) => x.name), ['rise', 'wrap-out', 'party-out', 'year-pop']);
+  assert.ok(a[0].delay < a[1].delay && a[1].delay < a[2].delay && a[2].delay < a[3].delay, JSON.stringify(a));
+  // screen readers still get the plain name
+  assert.equal((await page.locator('h1').textContent()).replace(/\s+/g, ' ').trim(), 'Miva Wrap Party');
   await context.close();
 });
 
