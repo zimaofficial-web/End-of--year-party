@@ -1,4 +1,4 @@
-/* Miva IRL registration form.
+/* Miva Wrap Party 2026 registration form.
  *
  * Layers (top to bottom):
  *   1. CONTACT / MESSAGES  - all user-facing text in one place
@@ -169,7 +169,7 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
         body: JSON.stringify({
-          _subject: 'Miva IRL RSVP: ' + oneLine(data.name) + ' (' + coming + ') - ' + (code || 'no code'),
+          _subject: 'Miva Wrap Party RSVP: ' + oneLine(data.name) + ' (' + coming + ') - ' + (code || 'no code'),
           _template: 'table',
           _captcha: 'false',
           'Ticket code': code || '-',
@@ -206,7 +206,8 @@
     g.fillStyle = '#E43B31'; g.fillRect(0, 112, W, 8);
     g.fillStyle = '#FFFFFF'; g.font = 'bold 54px "Space Grotesk", system-ui, sans-serif';
     g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillText('MIVA IRL', W / 2, 62);
+    g.font = 'bold 40px "Space Grotesk", system-ui, sans-serif';
+    g.fillText('MIVA WRAP PARTY 2026', W / 2, 62);
     var x0 = (W - size) / 2, y0 = 140;
     g.fillStyle = '#ffffff'; g.fillRect(x0, y0, size, size);
     g.fillStyle = '#000000';
@@ -250,7 +251,7 @@
         var url = URL.createObjectURL(blob);
         var a = document.createElement('a');
         a.href = url;
-        a.download = 'miva-irl-ticket-' + code + '.png';
+        a.download = 'miva-wrap-party-ticket-' + code + '.png';
         document.body.appendChild(a);
         a.click();
         a.remove();

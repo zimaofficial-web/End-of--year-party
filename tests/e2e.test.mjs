@@ -233,7 +233,7 @@ test('email copy: after a saved "yes" registration, FormSubmit gets the details 
   assert.equal(mails.length, 1);
   assert.equal(mails[0].url, 'https://formsubmit.co/ajax/zimaofficial001%40gmail.com');
   const b = mails[0].body;
-  assert.equal(b._subject, 'Miva IRL RSVP: Ada Obi (Yes) - MF-0042');
+  assert.equal(b._subject, 'Miva Wrap Party RSVP: Ada Obi (Yes) - MF-0042');
   assert.doesNotMatch(b._subject, /\p{Extended_Pictographic}/u);
   assert.equal(b['Full name'], 'Ada Obi');
   assert.equal(b['Email address'], 'ada.obi@example.com');
@@ -277,6 +277,25 @@ test('privacy note says a copy is emailed through FormSubmit', async () => {
   const { page, context } = await openPage(null);
   assert.match(await page.innerText('#consent-note'), /copy is emailed to the organisers through the FormSubmit email service/);
   await context.close();
+});
+
+test('hero: event name shown, and title text never overlaps the corner circles (phone to wide screen)', async () => {
+  for (const width of [320, 390, 768, 1024, 1280, 1920]) {
+    const { page, context } = await openPage(null, { viewport: { width, height: 800 }, reducedMotion: 'reduce' });
+    assert.match(await page.innerText('h1'), /MIVA\s+WRAP\s*PARTY/i);
+    assert.equal(await page.innerText('.hero .sub'), '2026');
+    const hit = await page.evaluate(() => {
+      const lines = [];
+      for (const sel of ['.hero .eyebrow', '.hero h1', '.hero .sub', '.hero .tag', '.hero .organised', '.hero .cta']) {
+        const rg = document.createRange(); rg.selectNodeContents(document.querySelector(sel)); lines.push(...rg.getClientRects());
+      }
+      const r = document.querySelector('.r1').getBoundingClientRect();
+      const cx = r.left + r.width / 2, cy = r.top + r.height / 2, rad = r.width / 2;
+      return lines.some((l) => Math.hypot(Math.max(l.left, Math.min(cx, l.right)) - cx, Math.max(l.top, Math.min(cy, l.bottom)) - cy) < rad);
+    });
+    assert.equal(hit, false, `overlap at ${width}px`);
+    await context.close();
+  }
 });
 
 test('sponsors card with WhatsApp link', async () => {
@@ -329,7 +348,7 @@ test('"Save ticket" downloads a PNG named after the ticket code', async () => {
   await page.click('#send');
   await page.waitForSelector('#result .save-ticket');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#result .save-ticket')]);
-  assert.equal(download.suggestedFilename(), 'miva-irl-ticket-MF-0042.png');
+  assert.equal(download.suggestedFilename(), 'miva-wrap-party-ticket-MF-0042.png');
   const path = await download.path();
   const head = readFileSync(path).subarray(0, 8).toString('hex');
   assert.equal(head, '89504e470d0a1a0a', 'file is a PNG');
