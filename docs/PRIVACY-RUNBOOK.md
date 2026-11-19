@@ -67,4 +67,13 @@ select cron.schedule(
 
 ## If the privacy text changes
 
-Change the text in `site/index.html`, then change `c_policy_version` in the `register_rsvp` function to a new value (for example `v2-2027-01-10`). New registrations will then record which version they agreed to.
+Change the text in `site/index.html`, then in Supabase run (with a new version name):
+
+```sql
+update private.settings set value = 'v4-2026-12-01' where key = 'policy_version';
+```
+
+New registrations then record which version they agreed to.
+
+History: `v1-2026-11-17` original; `v2-2026-11-18` adds the FormSubmit email copy;
+`v3-2026-11-19` shorter note (FormSubmit sentence and "see or" removed at the owner's request; FormSubmit copies are still sent).
