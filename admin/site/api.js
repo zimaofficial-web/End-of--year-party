@@ -97,9 +97,11 @@ export async function signOut() {
 // Super admin: create an admin login / set an admin's password. Goes through
 // the Supabase Edge Function "admin-users", which holds the secret key and
 // re-checks that the caller is the super admin.
+// Supabase gave the deployed "admin-users" function this web address (slug).
+const ADMIN_USERS_FUNCTION = 'bright-worker';
 export async function adminUsers(action, payload) {
   const token = await freshToken();
-  const r = await request('/functions/v1/admin-users', { body: { action, ...payload }, token });
+  const r = await request('/functions/v1/' + ADMIN_USERS_FUNCTION, { body: { action, ...payload }, token });
   if (r.status === 401) { save(null); throw new ApiError('signed_out'); }
   if (r.status === 403) throw new ApiError('not_authorized');
   if (r.status === 404) throw new ApiError('helper_missing');
