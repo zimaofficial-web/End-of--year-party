@@ -273,9 +273,11 @@ test('email copy failing does not affect the registration', async () => {
   await context.close();
 });
 
-test('privacy note says a copy is emailed through FormSubmit', async () => {
+test('privacy note: short version (no FormSubmit line, delete contact kept)', async () => {
   const { page, context } = await openPage(null);
-  assert.match(await page.innerText('#consent-note'), /copy is emailed to the organisers through the FormSubmit email service/);
+  const note = await page.innerText('#consent-note');
+  assert.doesNotMatch(note, /FormSubmit|To see or/);
+  assert.match(note, /To delete your details, email zimaofficial001@gmail\.com or WhatsApp \+234 808 063 3426\./);
   await context.close();
 });
 
