@@ -320,6 +320,7 @@ test('the gate fee shown is ₦3,000 (the old ₦1,000 line is gone)', async () 
   assert.doesNotMatch(text, /1,000/);
   assert.match(text, /Gate fee is ₦3,000 per person\. No refunds\./i);
   assert.match(await page.innerText('.ticket .stub'), /Gate fee/i);
+  assert.doesNotMatch(text, /Admit one/i);
   await context.close();
 });
 
