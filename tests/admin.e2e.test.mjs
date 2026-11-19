@@ -81,7 +81,7 @@ function fakeDb(roleFor = { 'super@x.com': 'super_admin', 'admin@x.com': 'admin'
         return json(200, { access_token: 'tok:' + body.email, refresh_token: 'ref:' + body.email, expires_in: db.expiresIn, user: { email: body.email } });
       }
       if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, body: '' });
-      if (url.pathname === '/functions/v1/bright-worker') {
+      if (url.pathname === '/functions/v1/smart-endpoint') {
         if (db.helperMissing) return json(404, { code: 'NOT_FOUND' });
         if (auth !== 'Bearer tok:super@x.com') return json(403, { result: 'not_authorized' });
         if (String(body.password).length < 10) return json(200, { result: 'weak_password' });
@@ -436,7 +436,7 @@ test('super admin: Add admin WITH a password creates the login (via the helper) 
   await page.fill('#admin-password', 'shared gate password');
   await page.click('#admin-add-btn');
   await page.waitForFunction(() => /can now log in/.test(document.getElementById('flash').textContent));
-  const call = db.calls.find((c) => c.path === '/functions/v1/bright-worker');
+  const call = db.calls.find((c) => c.path === '/functions/v1/smart-endpoint');
   assert.deepEqual(call.body, { action: 'create', email: 'gate1@x.com', password: 'shared gate password', role: 'admin', receives_emails: false });
   assert.equal(call.auth, 'Bearer tok:super@x.com', 'sent with the super admin’s own login token');
   assert.equal(call.apikey, KEY, 'only the publishable key is in the page');

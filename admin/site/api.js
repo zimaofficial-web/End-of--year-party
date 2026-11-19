@@ -98,7 +98,7 @@ export async function signOut() {
 // the Supabase Edge Function "admin-users", which holds the secret key and
 // re-checks that the caller is the super admin.
 // Supabase gave the deployed "admin-users" function this web address (slug).
-const ADMIN_USERS_FUNCTION = 'bright-worker';
+const ADMIN_USERS_FUNCTION = 'smart-endpoint';
 export async function adminUsers(action, payload) {
   const token = await freshToken();
   const r = await request('/functions/v1/' + ADMIN_USERS_FUNCTION, { body: { action, ...payload }, token });
