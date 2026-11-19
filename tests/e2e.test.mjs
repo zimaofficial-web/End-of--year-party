@@ -288,10 +288,12 @@ test('sponsors card with WhatsApp link', async () => {
   await context.close();
 });
 
-test('gate-fee reminder is gone from the page', async () => {
+test('the gate fee shown is ₦3,000 (the old ₦1,000 line is gone)', async () => {
   const { page, context } = await openPage(null);
   const text = await page.locator('body').innerText();
-  assert.doesNotMatch(text, /1,000|gate fee/i);
+  assert.doesNotMatch(text, /1,000/);
+  assert.match(text, /Gate fee is ₦3,000 per person\. No refunds\./i);
+  assert.match(await page.innerText('.ticket .stub'), /Gate fee/i);
   await context.close();
 });
 
