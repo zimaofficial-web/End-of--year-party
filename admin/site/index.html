@@ -102,8 +102,8 @@
   <!-- Admins (super admin only) -->
   <section id="view-admins" class="view" aria-labelledby="adm-h" hidden>
     <h1 id="adm-h">Admins</h1>
-    <p class="hint">Adding someone here gives them access. They also need a login: in Supabase go to
-      Authentication &rarr; Users &rarr; Add user, use the same email, and tick "Auto Confirm User".</p>
+    <p class="hint">Adding someone with a password creates their login and gives them access in one step.
+      Regular admins can share one password; yours stays separate.</p>
     <ul id="admin-list" class="rows"></ul>
     <form id="admin-form" class="card" novalidate>
       <h2>Add an admin</h2>
@@ -114,8 +114,11 @@
         <option value="admin">Admin (registrations + gate)</option>
         <option value="super_admin">Super admin (also manages admins)</option>
       </select>
+      <label for="admin-password">Password for their login</label>
+      <input id="admin-password" type="password" autocomplete="new-password" minlength="10" maxlength="200" aria-describedby="admin-password-hint">
+      <p id="admin-password-hint" class="hint">At least 10 characters. Leave empty only if they already have a login.</p>
       <label class="check"><input id="admin-emails" type="checkbox"> Send them registration emails</label>
-      <button type="submit">Add admin</button>
+      <button type="submit" id="admin-add-btn">Add admin</button>
     </form>
   </section>
 </main>

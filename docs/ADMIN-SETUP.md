@@ -60,6 +60,12 @@ Supabase → **Database** → **Webhooks** → **Create a new hook**:
 4. **Gate** → **Start camera** → scan the saved QR → **ADMIT**. Scan again → **ALREADY USED**.
 
 ## Passwords
+**From the admin site (after installing the helper once):** Admins page → *Add an admin* with a password
+(creates the login and gives access in one step), or **Set password** on an admin's row.
+Install the helper: Supabase → **Edge Functions** → **Deploy a new function** → **Via Editor** → name it
+`admin-users` → paste all of `supabase/functions/admin-users/index.ts` → **Deploy**. Keep **Verify JWT** on.
+It holds the secret key on Supabase's side and refuses anyone who isn't the super admin.
+
 - Regular admins **share one password** that the super admin sets when creating their logins in Supabase. The super admin's own password is different.
 - Only the super admin sees **My password** (admin site) to change their own. This hides the page; it is not a hard lock (Supabase still lets a logged-in user change their own password through its API).
 - Change the shared admin password after the event.

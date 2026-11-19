@@ -1,5 +1,5 @@
 // Miva IRL admin: views and UI. All database access goes through api.js.
-import { api, signIn, signOut, isSignedIn, currentEmail, changePassword, ApiError } from './api.js';
+import { api, signIn, signOut, isSignedIn, currentEmail, changePassword, adminUsers, ApiError } from './api.js';
 import { Scanner, parseTicketQr } from './gate.js';
 
 const $ = (id) => document.getElementById(id);
@@ -31,6 +31,7 @@ const MESSAGES = {
   bad_current: 'Your current password is wrong.',
   weak_password: 'That new password is too weak. Use at least 10 characters.',
   same_password: 'The new password must be different from the current one.',
+  helper_missing: 'The password helper isn\u2019t installed in Supabase yet (Edge Function "admin-users").',
   reauth_needed: 'Supabase wants extra confirmation for password changes. Ask the super admin to reset your login instead.',
   server: 'Something went wrong. Please try again.'
 };
@@ -335,12 +336,55 @@ async function loadAdmins() {
         el('span', { class: 'tag ' + (a.role === 'super_admin' ? 'warn' : 'muted'), text: a.role === 'super_admin' ? 'Super admin' : 'Admin' })),
       el('div', { class: 'row-actions' },
         el('label', { class: 'check', for: 'em-' + a.email }, emails, 'Registration emails'),
+        a.email === me ? null : el('button', { type: 'button', class: 'secondary', text: 'Set password',
+          'aria-label': 'Set password for ' + a.email, 'aria-expanded': 'false',
+          onclick: (ev) => togglePasswordForm(ev.currentTarget, a.email) }),
         el('button', { type: 'button', class: 'danger', text: 'Remove', 'aria-label': 'Remove ' + a.email,
           onclick: () => removeAdmin(a.email) })));
   }));
 }
 
+// Inline "set password" form under an admin's row (super admin only; the
+// Supabase helper re-checks this).
+function togglePasswordForm(btn, email) {
+  const row = btn.closest('li');
+  const open = row.querySelector('form.pw-set');
+  if (open) { open.remove(); btn.setAttribute('aria-expanded', 'false'); btn.focus(); return; }
+  const id = 'pw-' + email.replace(/[^a-z0-9]/gi, '-');
+  const input = el('input', { id, type: 'password', autocomplete: 'new-password', minlength: '10', maxlength: '200', required: true });
+  const again = el('input', { id: id + '-2', type: 'password', autocomplete: 'new-password', maxlength: '200', required: true });
+  const msg = el('p', { class: 'msg', role: 'alert' });
+  const save = el('button', { type: 'submit', text: 'Save password' });
+  const form = el('form', { class: 'pw-set card', novalidate: true },
+    el('label', { for: id, text: 'New password for ' + email }), input,
+    el('label', { for: id + '-2', text: 'Type it again' }), again, save, msg);
+  form.addEventListener('submit', async (ev) => {
+    ev.preventDefault();
+    msg.textContent = '';
+    if (input.value.length < 10) { msg.textContent = 'At least 10 characters.'; input.focus(); return; }
+    if (input.value !== again.value) { msg.textContent = 'The two passwords don\u2019t match.'; again.focus(); return; }
+    save.disabled = true;
+    try {
+      const result = await adminUsers('set_password', { email, password: input.value });
+      if (result === 'ok') { flash(`Password set for ${email}. Send it to them privately.`); form.remove(); btn.setAttribute('aria-expanded', 'false'); }
+      else msg.textContent = ADMIN_RESULT[result] || MESSAGES.server;
+    } catch (e) {
+      if (e instanceof ApiError && e.code === 'signed_out') { role = null; flash(say(e), true); show('login'); return; }
+      msg.textContent = say(e);
+    } finally { save.disabled = false; }
+  });
+  row.append(form);
+  btn.setAttribute('aria-expanded', 'true');
+  input.focus();
+}
+
 const ADMIN_RESULT = {
+  weak_password: 'That password is too weak. Use at least 10 characters.',
+  invalid_email: 'That email address isn\u2019t valid.',
+  invalid_role: 'Choose Admin or Super admin.',
+  not_admin: 'That person isn\u2019t an admin. Add them first.',
+  not_authorized: 'Only the super admin can do that.',
+  error: 'Something went wrong. Please try again.',
   ok: 'Saved.', invalid: 'That email or role isn’t valid.',
   last_super_admin: 'You can’t remove or demote the last super admin.', not_found: 'Admin not found.'
 };
@@ -358,8 +402,26 @@ $('admin-form').addEventListener('submit', async (ev) => {
   ev.preventDefault();
   const email = $('admin-email').value.trim().toLowerCase();
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { flash(ADMIN_RESULT.invalid, true); return; }
-  await saveAdmin(email, $('admin-role').value, $('admin-emails').checked);
-  $('admin-email').value = '';
+  const password = $('admin-password').value;
+  if (!password) {
+    // Access only (they already have a login).
+    await saveAdmin(email, $('admin-role').value, $('admin-emails').checked);
+    $('admin-email').value = '';
+    return;
+  }
+  if (password.length < 10) { flash(ADMIN_RESULT.weak_password, true); $('admin-password').focus(); return; }
+  $('admin-add-btn').disabled = true;
+  try {
+    const result = await adminUsers('create', { email, password, role: $('admin-role').value, receives_emails: $('admin-emails').checked });
+    if (result === 'ok') {
+      flash(`${email} can now log in. Send them the password privately.`);
+      $('admin-email').value = ''; $('admin-password').value = '';
+      loadAdmins();
+    } else flash(ADMIN_RESULT[result] || ADMIN_RESULT.error, true);
+  } catch (e) {
+    if (e instanceof ApiError && e.code === 'signed_out') { role = null; flash(say(e), true); show('login'); return; }
+    flash(say(e), true);
+  } finally { $('admin-add-btn').disabled = false; }
 });
 
 // ------------------------------------------------------------------ start

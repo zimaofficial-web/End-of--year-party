@@ -81,6 +81,18 @@ function fakeDb(roleFor = { 'super@x.com': 'super_admin', 'admin@x.com': 'admin'
         return json(200, { access_token: 'tok:' + body.email, refresh_token: 'ref:' + body.email, expires_in: db.expiresIn, user: { email: body.email } });
       }
       if (url.pathname === '/auth/v1/logout') return route.fulfill({ status: 204, body: '' });
+      if (url.pathname === '/functions/v1/admin-users') {
+        if (db.helperMissing) return json(404, { code: 'NOT_FOUND' });
+        if (auth !== 'Bearer tok:super@x.com') return json(403, { result: 'not_authorized' });
+        if (String(body.password).length < 10) return json(200, { result: 'weak_password' });
+        if (body.action === 'create') {
+          db.admins.push({ email: body.email, role: body.role, receives_emails: body.receives_emails, created_at: '2026-11-19T00:00:00Z' });
+          db.logins = [...(db.logins || []), { email: body.email, password: body.password }];
+          return json(200, { result: 'ok' });
+        }
+        if (body.action === 'set_password') { db.passwordSet = { email: body.email, password: body.password }; return json(200, { result: 'ok' }); }
+        return json(400, { result: 'error' });
+      }
       if (url.pathname === '/auth/v1/user' && req.method() === 'PUT') {
         if (!auth.startsWith('Bearer tok:')) return json(401, { msg: 'no token' });
         if (body.password === 'weakweakweak') return json(422, { code: 422, error_code: 'weak_password', msg: 'Password is known to be weak' });
@@ -410,6 +422,69 @@ test('change password: server says weak -> friendly message', async () => {
   await fillPw(page, 'right-password', 'weakweakweak');
   await page.waitForFunction(() => /too weak/.test(document.getElementById('pw-msg').textContent));
   assert.equal(db.newPassword, undefined);
+  await context.close();
+});
+
+test('super admin: Add admin WITH a password creates the login (via the helper) and lists them', async () => {
+  const db = fakeDb();
+  const { page, context, problems } = await open(db);
+  await login(page, 'super@x.com');
+  await page.waitForSelector('#reg-list li');
+  await page.click('a[data-view=admins]');
+  await page.waitForSelector('#admin-list li');
+  await page.fill('#admin-email', 'Gate1@X.com');
+  await page.fill('#admin-password', 'shared gate password');
+  await page.click('#admin-add-btn');
+  await page.waitForFunction(() => /can now log in/.test(document.getElementById('flash').textContent));
+  const call = db.calls.find((c) => c.path === '/functions/v1/admin-users');
+  assert.deepEqual(call.body, { action: 'create', email: 'gate1@x.com', password: 'shared gate password', role: 'admin', receives_emails: false });
+  assert.equal(call.auth, 'Bearer tok:super@x.com', 'sent with the super admin’s own login token');
+  assert.equal(call.apikey, KEY, 'only the publishable key is in the page');
+  await page.waitForFunction(() => /gate1@x\.com/.test(document.getElementById('admin-list').textContent));
+  assert.equal(await page.inputValue('#admin-password'), '', 'password box cleared');
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('super admin: Set password on an admin row (typed twice, 10+ characters)', async () => {
+  const db = fakeDb();
+  const { page, context } = await open(db);
+  await login(page, 'super@x.com');
+  await page.waitForSelector('#reg-list li');
+  await page.click('a[data-view=admins]');
+  await page.waitForSelector('#admin-list li');
+  assert.equal(await page.locator('button[aria-label="Set password for super@x.com"]').count(), 0, 'not shown on your own row');
+  await page.click('button[aria-label="Set password for admin@x.com"]');
+  const form = page.locator('form.pw-set');
+  await form.locator('input').nth(0).fill('short');
+  await form.locator('input').nth(1).fill('short');
+  await form.locator('button').click();
+  assert.match(await form.locator('.msg').innerText(), /At least 10/);
+  await form.locator('input').nth(0).fill('shared gate password');
+  await form.locator('input').nth(1).fill('shared gate passwrod');
+  await form.locator('button').click();
+  assert.match(await form.locator('.msg').innerText(), /don’t match/);
+  assert.equal(db.passwordSet, undefined, 'nothing sent yet');
+  await form.locator('input').nth(1).fill('shared gate password');
+  await form.locator('button').click();
+  await page.waitForFunction(() => /Password set for admin@x\.com/.test(document.getElementById('flash').textContent));
+  assert.deepEqual(db.passwordSet, { email: 'admin@x.com', password: 'shared gate password' });
+  assert.equal(await page.locator('form.pw-set').count(), 0, 'form closes');
+  await context.close();
+});
+
+test('helper not installed yet: clear message, no crash', async () => {
+  const db = fakeDb();
+  db.helperMissing = true;
+  const { page, context } = await open(db);
+  await login(page, 'super@x.com');
+  await page.waitForSelector('#reg-list li');
+  await page.click('a[data-view=admins]');
+  await page.waitForSelector('#admin-list li');
+  await page.fill('#admin-email', 'gate1@x.com');
+  await page.fill('#admin-password', 'shared gate password');
+  await page.click('#admin-add-btn');
+  await page.waitForFunction(() => /isn’t installed in Supabase yet/.test(document.getElementById('flash').textContent));
   await context.close();
 });
 
