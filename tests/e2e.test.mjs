@@ -205,7 +205,8 @@ test('valid "yes" submit: button disabled while sending, correct payload, succes
   assert.equal(await page.isDisabled('#send'), false);
   const text = await resultText(page);
   assert.match(text, /Registration received/);
-  assert.match(text, /\[PAYMENT INSTRUCTIONS TO BE ADDED\]/);
+  assert.match(text, /Pay the ₦3,000 gate fee by bank transfer/);
+  assert.doesNotMatch(text, /PAYMENT INSTRUCTIONS TO BE ADDED/);
   assert.equal(await page.getAttribute('#result', 'role'), 'status');
   assert.equal(calls.length, 1);
   assert.equal(calls[0].url, RPC);
@@ -333,7 +334,7 @@ test('"yes" ticket: code + QR shown; QR decodes to MIVAFEST1:<token> with the ga
   const text = await resultText(page);
   assert.match(text, /Registration received/);
   assert.match(text, /Your ticket code is MF-0042/);
-  assert.match(text, /\[PAYMENT INSTRUCTIONS TO BE ADDED\]/);
+  assert.doesNotMatch(text, /PAYMENT INSTRUCTIONS TO BE ADDED/);
   assert.equal(await page.getAttribute('#result canvas', 'aria-label'), 'Ticket QR code for MF-0042');
   // Read the pixels and decode with the same jsQR file the gate page uses.
   const img = await page.evaluate(() => {
@@ -348,6 +349,43 @@ test('"yes" ticket: code + QR shown; QR decodes to MIVAFEST1:<token> with the ga
   assert.doesNotMatch(decoded.data, /Ada|example\.com|0808/, 'QR holds no personal data');
   assert.deepEqual(problems, []);
   await context.close();
+});
+
+test('payment: OPay bank details with the ticket code as narration; Copy buttons copy the right values', async () => {
+  const { page, context, problems } = await openPage(okJson({ status: 'created', ticket_code: 'MF-0042', ticket_token: TOKEN }));
+  await context.grantPermissions(['clipboard-read', 'clipboard-write'], { origin: base });
+  await fillValid(page, 'yes');
+  await page.click('#send');
+  await page.waitForSelector('#result .pay-box');
+  const box = await page.innerText('#result .pay-box');
+  for (const part of [/Pay ₦3,000 gate fee/, /Bank\s+OPay/, /Account number\s+7044916819/, /Account name\s+Obirai Ozioma/, /Amount\s+₦3,000/, /Narration\s+MF-0042/, /Use your ticket code MF-0042 as the transfer narration/, /No refunds/])
+    assert.match(box, part);
+  await page.click('button[aria-label="Copy account number"]');
+  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), '7044916819');
+  await page.waitForFunction(() => document.querySelector('button[aria-label="Copy account number"]').textContent === 'Copied');
+  await page.click('button[aria-label="Copy ticket code"]');
+  assert.equal(await page.evaluate(() => navigator.clipboard.readText()), 'MF-0042');
+  // payment details come before the QR ticket
+  const order = await page.evaluate(() => {
+    const kids = [...document.getElementById('result').children].map((n) => n.className);
+    return kids.indexOf('pay-box') < kids.indexOf('ticket-out');
+  });
+  assert.ok(order);
+  assert.deepEqual(problems, []);
+  await context.close();
+});
+
+test('payment box is not shown for "no", duplicates, or the honeypot', async () => {
+  for (const [reply, attend, bot] of [[{ status: 'created', ticket_code: 'MF-0043' }, 'no', false], [{ status: 'duplicate' }, 'yes', false], [{ status: 'created', ticket_code: 'MF-0044', ticket_token: TOKEN }, 'yes', true]]) {
+    const { page, context } = await openPage(okJson(reply));
+    await fillValid(page, attend);
+    if (bot) await page.evaluate(() => { document.getElementById('site').value = 'bot'; });
+    await page.click('#send');
+    await page.waitForFunction(() => !document.getElementById('result').hidden);
+    assert.equal(await page.locator('#result .pay-box').count(), 0, JSON.stringify(reply));
+    assert.doesNotMatch(await resultText(page), /7044916819/);
+    await context.close();
+  }
 });
 
 test('"Save ticket" downloads a PNG named after the ticket code', async () => {

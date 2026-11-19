@@ -50,7 +50,10 @@ Database tests (needs a local PostgreSQL 15+):
 PSQL="sudo -u postgres psql" bash scripts/test-db.sh
 ```
 
+## Payment
+
+Gate fee ₦3,000 by bank transfer (OPay 7044916819, Obirai Ozioma), ticket code as narration. Details live in `PAYMENT` in `site/app.js`. Admins tick **Mark paid** after checking the bank app.
+
 ## Placeholders still to fill
 
-- `[PAYMENT INSTRUCTIONS TO BE ADDED]` in `site/app.js`
 - `YOUR-PROJECT-REF` in `vercel.json` (see deploy guide, step 6)

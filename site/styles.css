@@ -92,6 +92,14 @@ footer{padding:40px 0 56px;border-top:2px solid rgba(246,241,230,.2);font-size:1
 .hp{position:absolute;left:-9999px}
 
 /* ticket shown after a successful "yes" registration */
+.pay-box{margin-top:16px;padding:16px;border:2px solid var(--bg);border-radius:12px;background:#fff}
+.pay-title{margin:0 0 8px;font-size:20px;font-weight:700}
+.pay-box dl{margin:0}
+.pay-box dl div{display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;padding:6px 0;border-bottom:1px solid #e3ddd0}
+.pay-box dt{flex:0 0 132px;font-size:14px;color:#4a4538}
+.pay-box dd{margin:0;display:flex;gap:10px;align-items:center;font-weight:700;font-size:18px;overflow-wrap:anywhere}
+.copy-btn{font:inherit;font-size:14px;font-weight:700;background:var(--bg);color:#fff;border:0;border-radius:999px;padding:8px 14px;min-height:44px;min-width:44px;cursor:pointer}
+.pay-note{margin:10px 0 0;font-size:15px}
 .ticket-out{margin-top:16px;display:flex;flex-direction:column;align-items:flex-start;gap:12px}
 .ticket-out canvas{width:100%;max-width:300px;height:auto;border-radius:12px;border:2px solid var(--ink);background:#fff}
 .ticket-code{font-size:28px;font-weight:700;letter-spacing:.08em;margin:0}

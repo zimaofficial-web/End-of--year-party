@@ -46,7 +46,7 @@ Use your phone for at least one of these. Write ✅ or ❌ next to each.
 
 | # | Test | How | Expected |
 |---|---|---|---|
-| 1 | **Valid submit** | Fill every field with real-looking data, choose **Yes**, tick consent, submit. | "Registration received" + `[PAYMENT INSTRUCTIONS TO BE ADDED]`. In Supabase **Table Editor → rsvps** you see one new row, with `consent_at`, `policy_version = v1-2026-11-17` and `notified = false`. |
+| 1 | **Valid submit** | Fill every field with real-looking data, choose **Yes**, tick consent, submit. | "Registration received", the OPay transfer details with the ticket code as narration, and the QR ticket. In Supabase **Table Editor → rsvps** you see one new row, with `consent_at`, `policy_version = v1-2026-11-17` and `notified = false`. |
 | 2 | **Invalid submit** | Leave name empty, type `abc` as email, submit. | Red messages under the fields, cursor jumps to the first bad field, nothing new in the table. |
 | 3 | **Duplicate email** | Submit again with the **same email** (try capital letters too) and a different name. | "Already registered…" with your contact. The row in the table still has the **first** name. |
 | 4 | **Honeypot filled** | On a laptop: right-click the page → Inspect → Console, paste `document.getElementById('site').value='spam'` and press Enter. Then fill the form normally and submit. | Looks like a success, but **no** new row appears in the table. |

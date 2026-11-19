@@ -15,11 +15,13 @@
 
   // ------------------------------------------------------------ 1. messages
   var CONTACT = 'email zimaofficial001@gmail.com or WhatsApp +234 808 063 3426';
+  // Gate fee is paid by bank transfer; an admin marks the ticket Paid.
+  var PAYMENT = { bank: 'OPay', number: '7044916819', name: 'Obirai Ozioma', amount: '\u20a63,000' };
   var MESSAGES = {
     createdYes: function (name, code) {
       return ['Registration received',
         'Thanks, ' + name + '.' + (code ? ' Your ticket code is ' + code + '.' : '') +
-        ' [PAYMENT INSTRUCTIONS TO BE ADDED]'];
+        ' Pay the ' + PAYMENT.amount + ' gate fee by bank transfer using the details below.'];
     },
     createdNo: function (name) {
       return ['Thanks for letting us know', 'Thanks, ' + name + '. We’ll miss you!'];
@@ -230,6 +232,54 @@
     return canvas;
   }
 
+  // Bank-transfer details with copy buttons. The ticket code is the narration,
+  // so the admin can match the payment and tap "Mark paid".
+  function copyButton(label, value) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'copy-btn';
+    b.textContent = 'Copy';
+    b.setAttribute('aria-label', 'Copy ' + label);
+    b.addEventListener('click', function () {
+      var done = function () { b.textContent = 'Copied'; setTimeout(function () { b.textContent = 'Copy'; }, 2000); };
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(value).then(done, function () { b.textContent = value; });
+      } else {
+        b.textContent = value;   // no clipboard: show the value to copy by hand
+      }
+    });
+    return b;
+  }
+
+  function showPayment(code) {
+    var box = document.createElement('div');
+    box.className = 'pay-box';
+    var h = document.createElement('p');
+    h.className = 'pay-title';
+    h.textContent = 'Pay ' + PAYMENT.amount + ' gate fee';
+    box.appendChild(h);
+    var dl = document.createElement('dl');
+    [['Bank', PAYMENT.bank, null],
+     ['Account number', PAYMENT.number, 'account number'],
+     ['Account name', PAYMENT.name, null],
+     ['Amount', PAYMENT.amount, null],
+     ['Narration', code, 'ticket code']].forEach(function (row) {
+      var div = document.createElement('div');
+      var dt = document.createElement('dt'); dt.textContent = row[0];
+      var dd = document.createElement('dd');
+      var v = document.createElement('span'); v.textContent = row[1];
+      dd.appendChild(v);
+      if (row[2]) dd.appendChild(copyButton(row[2], row[1]));
+      div.appendChild(dt); div.appendChild(dd); dl.appendChild(div);
+    });
+    box.appendChild(dl);
+    var note = document.createElement('p');
+    note.className = 'pay-note';
+    note.textContent = 'Use your ticket code ' + code + ' as the transfer narration. Your ticket works once we confirm your payment. No refunds.';
+    box.appendChild(note);
+    result.appendChild(box);
+  }
+
   function showTicket(name, code, token) {
     var canvas = drawTicket(name, code, token);
     if (!canvas) return;
@@ -309,6 +359,7 @@
         emailCopy.send(data, answer.ticketCode);   // not awaited: never delays the ticket
         if (data.attending === 'yes') {
           show(MESSAGES.createdYes(data.name, answer.ticketCode), 'ok');
+          if (answer.ticketCode) showPayment(answer.ticketCode);
           if (answer.ticketCode && answer.ticketToken) showTicket(data.name, answer.ticketCode, answer.ticketToken);
         } else {
           show(MESSAGES.createdNo(data.name), 'ok');
