@@ -234,7 +234,7 @@ test('email copy: after a saved "yes" registration, FormSubmit gets the details 
   assert.equal(mails.length, 1);
   assert.equal(mails[0].url, 'https://formsubmit.co/ajax/zimaofficial001%40gmail.com');
   const b = mails[0].body;
-  assert.equal(b._subject, 'Miva Wrap Party RSVP: Ada Obi (Yes) - MF-0042');
+  assert.equal(b._subject, 'Miva Stars 2026 RSVP: Ada Obi (Yes) - MF-0042');
   assert.doesNotMatch(b._subject, /\p{Extended_Pictographic}/u);
   assert.equal(b['Full name'], 'Ada Obi');
   assert.equal(b['Email address'], 'ada.obi@example.com');
@@ -285,12 +285,11 @@ test('privacy note: short version (no FormSubmit line, delete contact kept)', as
 test('hero: event name shown, and title text never overlaps the corner circles (phone to wide screen)', async () => {
   for (const width of [320, 390, 768, 1024, 1280, 1920]) {
     const { page, context } = await openPage(null, { viewport: { width, height: 800 }, reducedMotion: 'reduce' });
-    assert.match(await page.innerText('h1'), /MIVA\s+WRAP\s*PARTY/i);
-    assert.equal(await page.innerText('.hero .sub'), '2026');
+    assert.match(await page.innerText('h1'), /MIVA\s+STARS\s+2026\s+WRAP\s*PARTY/i);
     const hit = await page.evaluate(() => {
       // rectangles of the actual text (letters), not of the block boxes around them
       const lines = [];
-      for (const sel of ['.hero .eyebrow', '.hero h1', '.hero .sub', '.hero .tag', '.hero .organised', '.hero .cta']) {
+      for (const sel of ['.hero .eyebrow', '.hero h1', '.hero .tag', '.hero .organised', '.hero .cta']) {
         const walk = document.createTreeWalker(document.querySelector(sel), NodeFilter.SHOW_TEXT);
         while (walk.nextNode()) {
           if (!walk.currentNode.textContent.trim()) continue;
@@ -394,7 +393,7 @@ test('"Save ticket" downloads a PNG named after the ticket code', async () => {
   await page.click('#send');
   await page.waitForSelector('#result .save-ticket');
   const [download] = await Promise.all([page.waitForEvent('download'), page.click('#result .save-ticket')]);
-  assert.equal(download.suggestedFilename(), 'miva-wrap-party-ticket-MF-0042.png');
+  assert.equal(download.suggestedFilename(), 'miva-stars-ticket-MF-0042.png');
   const path = await download.path();
   const head = readFileSync(path).subarray(0, 8).toString('hex');
   assert.equal(head, '89504e470d0a1a0a', 'file is a PNG');
@@ -530,7 +529,7 @@ test('motion allowed: every section is fully visible once scrolled into view', a
     .map((a) => a.finished)));
   assert.equal(await page.evaluate(() => getComputedStyle(document.querySelector('.hero h1')).opacity), '1');
   // after the title animation, every word sits in place, fully shown
-  const end = await page.evaluate(() => ['.t-miva', '.t-wrap', '.t-party', '.hero .sub'].map((sel) => {
+  const end = await page.evaluate(() => ['.t-miva', '.t-year', '.t-wrap', '.t-party'].map((sel) => {
     const cs = getComputedStyle(document.querySelector(sel));
     const t = cs.transform === 'matrix(1, 0, 0, 1, 0, 0)' ? 'none' : cs.transform;   // identity = in place
     return [cs.opacity, t];
@@ -568,7 +567,7 @@ test('reduced motion: animations are switched off', async () => {
     getComputedStyle(document.querySelector('.t-miva')).animationName,
     getComputedStyle(document.querySelector('.t-wrap')).animationName,
     getComputedStyle(document.querySelector('.t-party')).animationName,
-    getComputedStyle(document.querySelector('.hero .sub')).animationName,
+    getComputedStyle(document.querySelector('.t-year')).animationName,
     getComputedStyle(document.querySelector('.r1')).animationName
   ]);
   assert.deepEqual(anim, ['none', 'none', 'none', 'none', 'none']);
@@ -577,14 +576,14 @@ test('reduced motion: animations are switched off', async () => {
 
 test('title animation order: MIVA, then WRAP comes out of it, then PARTY, then 2026', async () => {
   const { page, context } = await openPage(null, { reducedMotion: 'no-preference' });
-  const a = await page.evaluate(() => ['.t-miva', '.t-wrap', '.t-party', '.hero .sub'].map((sel) => {
+  const a = await page.evaluate(() => ['.t-miva', '.t-year', '.t-wrap', '.t-party'].map((sel) => {
     const cs = getComputedStyle(document.querySelector(sel));
     return { name: cs.animationName, delay: parseFloat(cs.animationDelay) };
   }));
-  assert.deepEqual(a.map((x) => x.name), ['rise', 'wrap-out', 'party-out', 'year-pop']);
+  assert.deepEqual(a.map((x) => x.name), ['rise', 'year-pop', 'wrap-out', 'party-out']);
   assert.ok(a[0].delay < a[1].delay && a[1].delay < a[2].delay && a[2].delay < a[3].delay, JSON.stringify(a));
   // screen readers still get the plain name
-  assert.equal((await page.locator('h1').textContent()).replace(/\s+/g, ' ').trim(), 'Miva Wrap Party');
+  assert.equal((await page.locator('h1').textContent()).replace(/\s+/g, ' ').trim(), 'Miva Stars 2026 Wrap Party');
   await context.close();
 });
 

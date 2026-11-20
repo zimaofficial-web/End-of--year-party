@@ -19,7 +19,8 @@ a{color:var(--accent)}
 .r3{width:110px;height:110px;right:-25px;top:-55px;background:var(--accent)}
 .hero .wrap{position:relative}
 h1{margin:14px 0 0;font-size:clamp(64px,13vw,130px);line-height:.86;letter-spacing:-.04em;text-transform:uppercase}
-.t-miva,.t-wp{display:block}
+.t-miva,.t-year,.t-wp{display:block}
+.t-year{font-size:.36em;letter-spacing:.02em;line-height:1;margin:.14em 0 .1em}
 .t-wp{color:var(--accent)}
 .t-wrap,.t-party{display:inline-block}
 .sub{font-size:clamp(22px,4.4vw,40px);font-weight:500;letter-spacing:.02em;text-transform:uppercase;margin:18px 0 0}
@@ -116,8 +117,8 @@ footer{padding:40px 0 56px;border-top:2px solid rgba(246,241,230,.2);font-size:1
   @keyframes wiggle{0%,100%{transform:rotate(0)}25%{transform:rotate(-1.2deg)}75%{transform:rotate(1.2deg)}}
   @keyframes pop{0%{opacity:0;transform:scale(.92)}60%{opacity:1;transform:scale(1.03)}100%{transform:scale(1)}}
 
-  /* hero title: MIVA appears, WRAP slides down out from under it, PARTY
-     slides out sideways from behind WRAP, then 2026 pops in. Each word moves
+  /* hero title: MIVA STARS appears, 2026 pops in, WRAP slides down out from
+     under it, then PARTY slides out sideways from behind WRAP. Each word moves
      through a fixed "slit" (clip-path moves with the transform), so it looks
      like it comes out of the word before it. */
   /* The slit edge stays put while the word moves (top inset 100% -> -6%,
@@ -135,9 +136,9 @@ footer{padding:40px 0 56px;border-top:2px solid rgba(246,241,230,.2);font-size:1
   @keyframes year-pop{0%{opacity:0;transform:scale(.6)}70%{opacity:1;transform:scale(1.12)}100%{transform:none}}
   .hero .eyebrow,.hero .t-miva,.hero .tag,.hero .organised,.hero .cta{animation:rise .8s cubic-bezier(.2,.7,.2,1) both}
   .hero .t-miva{animation-delay:.1s}
-  .hero .t-wrap{animation:wrap-out .7s cubic-bezier(.2,.7,.2,1) .45s both}
-  .hero .t-party{animation:party-out .7s cubic-bezier(.2,.7,.2,1) .85s both}
-  .hero .sub{display:inline-block;transform-origin:left center;animation:year-pop .5s cubic-bezier(.2,.7,.2,1) 1.25s both}
+  .hero .t-wrap{animation:wrap-out .7s cubic-bezier(.2,.7,.2,1) .8s both}
+  .hero .t-party{animation:party-out .7s cubic-bezier(.2,.7,.2,1) 1.2s both}
+  .hero .t-year{transform-origin:left center;animation:year-pop .5s cubic-bezier(.2,.7,.2,1) .45s both}
   .hero .tag,.hero .organised{animation-delay:.6s}
   .hero .cta{animation-delay:.7s}
   .r1{animation:pulse 6s ease-in-out infinite}

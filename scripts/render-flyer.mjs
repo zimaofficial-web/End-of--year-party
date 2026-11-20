@@ -1,4 +1,4 @@
-// Renders flyer/flyer.html to flyer/miva-wrap-party-flyer.png (1080 x 1350) and checks
+// Renders flyer/flyer.html to flyer/miva-stars-flyer.png (1080 x 1350) and checks
 // that the QR on the finished image really opens the registration page.
 //   node scripts/render-flyer.mjs [registration-url]
 // Needs Playwright with Chromium. The QR check uses admin/site/vendor/jsQR.js (the gate's scanner).
@@ -10,7 +10,7 @@ const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const url = process.argv[2] || 'https://miva-fest.vercel.app/#register';
-const out = join(root, 'flyer', 'miva-wrap-party-flyer.png');
+const out = join(root, 'flyer', 'miva-stars-flyer.png');
 
 const browser = await chromium.launch();
 const page = await browser.newPage({ viewport: { width: 1080, height: 1350 }, deviceScaleFactor: 1 });
