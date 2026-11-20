@@ -21,7 +21,7 @@ const record = {
 // ------------------------------------------------------------ pure helpers
 test('subject: no emoji, name + Yes/No + ticket code', () => {
   const { subject } = buildEmail(record);
-  assert.equal(subject, 'Miva IRL RSVP: Ada <b>Obi</b> (Yes) - MF-0042');
+  assert.equal(subject, 'Miva Stars 2026 RSVP: Ada <b>Obi</b> (Yes) - MF-0042');
   assert.doesNotMatch(subject, /\p{Extended_Pictographic}/u);
 });
 test('subject cannot be broken onto new header lines', () => {
@@ -97,8 +97,8 @@ test('handler: valid insert -> looks up recipients, sends one email, marks notif
   const mail = JSON.parse(calls[1].init.body);
   assert.equal(calls[1].init.headers.Authorization, 'Bearer re_test');
   assert.deepEqual(mail.to, ['zimaofficial001@gmail.com']);
-  assert.equal(mail.from, 'Miva IRL <onboarding@resend.dev>');
-  assert.equal(mail.subject, 'Miva IRL RSVP: Ada <b>Obi</b> (Yes) - MF-0042');
+  assert.equal(mail.from, 'Miva Stars <onboarding@resend.dev>');
+  assert.equal(mail.subject, 'Miva Stars 2026 RSVP: Ada <b>Obi</b> (Yes) - MF-0042');
   assert.equal(calls[2].init.method, 'PATCH');
   assert.equal(calls[2].url, `https://p.supabase.co/rest/v1/rsvps?id=eq.${record.id}`);
   assert.deepEqual(JSON.parse(calls[2].init.body), { notified: true });

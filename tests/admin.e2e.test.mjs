@@ -217,11 +217,11 @@ test('follow-up: WhatsApp and Email buttons for every registration, safely encod
   await page.waitForSelector('#reg-list li');
   const wa = await page.getAttribute('a[aria-label="WhatsApp Ada Obi"]', 'href');
   assert.match(wa, /^https:\/\/wa\.me\/2348011111111\?text=/);
-  assert.equal(decodeURIComponent(wa.split('text=')[1]), 'Hi Ada Obi, this is the Miva IRL team about your registration (MF-0001).');
+  assert.equal(decodeURIComponent(wa.split('text=')[1]), 'Hi Ada Obi, this is the Miva Stars team about your registration (MF-0001).');
   assert.equal(await page.getAttribute('a[aria-label="WhatsApp Ada Obi"]', 'rel'), 'noopener noreferrer');
   assert.match(await page.getAttribute('a[aria-label="WhatsApp Not Coming"]', 'href'), /^https:\/\/wa\.me\/2348033333333\?/);
   const mail = await page.getAttribute('a[aria-label="Email Ada Obi"]', 'href');
-  assert.match(mail, /^mailto:ada@x\.com\?subject=Miva%20IRL%3A%20your%20registration%20MF-0001&body=/);
+  assert.match(mail, /^mailto:ada@x\.com\?subject=Miva%20Stars%202026%3A%20your%20registration%20MF-0001&body=/);
   // a name full of markup stays inside the encoded link text, never becomes HTML
   const evil = await page.getAttribute('a[aria-label="Email <img src=x onerror=alert(1)>"]', 'href');
   assert.ok(evil.includes(encodeURIComponent('<img src=x onerror=alert(1)>')));
@@ -266,7 +266,7 @@ test('CSV export: all rows, formula-looking cells neutralised', async () => {
   await login(page, 'admin@x.com');
   await page.waitForSelector('#reg-list li');
   const [dl] = await Promise.all([page.waitForEvent('download'), page.click('#export')]);
-  assert.equal(dl.suggestedFilename(), 'miva-irl-registrations.csv');
+  assert.equal(dl.suggestedFilename(), 'miva-stars-registrations.csv');
   const csv = readFileSync(await dl.path(), 'utf8');
   assert.equal(csv.trim().split('\r\n').length, 4);
   assert.match(csv, /"'=HYPERLINK\(""http:\/\/evil""\)"/);

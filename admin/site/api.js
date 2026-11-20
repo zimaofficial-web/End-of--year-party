@@ -1,4 +1,4 @@
-// Miva IRL admin: login session + database calls.
+// Miva Stars admin: login session + database calls.
 // The only module that talks to Supabase. Uses the public publishable/anon
 // key plus the logged-in admin's own access token. No secret keys, ever.
 

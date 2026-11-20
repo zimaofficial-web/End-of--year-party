@@ -1,4 +1,4 @@
-// Miva IRL admin: views and UI. All database access goes through api.js.
+// Miva Stars admin: views and UI. All database access goes through api.js.
 import { api, signIn, signOut, isSignedIn, currentEmail, changePassword, adminUsers, ApiError } from './api.js';
 import { Scanner, parseTicketQr } from './gate.js';
 
@@ -61,7 +61,7 @@ export function whatsappNumber(phone) {
   return /^\d{10,15}$/.test(d) ? d : '';
 }
 function followUpLinks(r) {
-  const hello = `Hi ${r.name}, this is the Miva IRL team about your registration (${r.ticket_code}).`;
+  const hello = `Hi ${r.name}, this is the Miva Stars team about your registration (${r.ticket_code}).`;
   const wa = whatsappNumber(r.phone);
   const links = [];
   if (wa) {
@@ -69,7 +69,7 @@ function followUpLinks(r) {
       target: '_blank', rel: 'noopener noreferrer', text: 'WhatsApp', 'aria-label': `WhatsApp ${r.name}` }));
   }
   links.push(el('a', { class: 'linkbtn', text: 'Email', 'aria-label': `Email ${r.name}`,
-    href: `mailto:${encodeURIComponent(r.email).replace(/%40/g, '@')}?subject=${encodeURIComponent('Miva IRL: your registration ' + r.ticket_code)}&body=${encodeURIComponent(hello + '\n\n')}` }));
+    href: `mailto:${encodeURIComponent(r.email).replace(/%40/g, '@')}?subject=${encodeURIComponent('Miva Stars 2026: your registration ' + r.ticket_code)}&body=${encodeURIComponent(hello + '\n\n')}` }));
   return links;
 }
 
@@ -227,7 +227,7 @@ $('export').addEventListener('click', () => {
   };
   const csv = [cols.join(','), ...rows.map((r) => cols.map((c) => cell(r[c])).join(','))].join('\r\n');
   const url = URL.createObjectURL(new Blob(['﻿' + csv], { type: 'text/csv;charset=utf-8' }));
-  const a = el('a', { href: url, download: 'miva-irl-registrations.csv' });
+  const a = el('a', { href: url, download: 'miva-stars-registrations.csv' });
   document.body.append(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 10000);
 });
@@ -239,7 +239,7 @@ const GATE = {
   not_paid: ['bad', 'NOT PAID', 'Payment not confirmed. Do not admit.'],
   not_attending: ['warn', 'NOT ATTENDING', 'They registered as not coming. No ticket.'],
   not_found: ['bad', 'NOT FOUND', 'No ticket matches this code.'],
-  not_ours: ['bad', 'NOT A MIVA IRL TICKET', 'This QR code is not one of our tickets.']
+  not_ours: ['bad', 'NOT A MIVA STARS TICKET', 'This QR code is not one of our tickets.']
 };
 
 function gateResult(res) {
