@@ -9,7 +9,7 @@ import { fileURLToPath } from 'node:url';
 const require = createRequire(import.meta.url);
 const { chromium } = require('playwright');
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
-const url = process.argv[2] || 'https://miva-fest.vercel.app/#register';
+const url = process.argv[2] || 'https://miva-stars.vercel.app/#register';
 const out = join(root, 'flyer', 'miva-stars-flyer.png');
 
 const browser = await chromium.launch();

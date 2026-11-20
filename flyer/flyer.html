@@ -69,7 +69,7 @@ h1 span{display:block;color:var(--accent)}
 <script src="../site/vendor/qrcode.js"></script>
 <script>
   // Registration link (can be overridden: flyer.html?url=https://...)
-  var url = new URLSearchParams(location.search).get('url') || 'https://miva-fest.vercel.app/#register';
+  var url = new URLSearchParams(location.search).get('url') || 'https://miva-stars.vercel.app/#register';
   document.getElementById('url').textContent = url.replace(/^https:\/\//, '').replace(/\/#register$/, '');
   var qr = qrcode(0, 'M'); qr.addData(url); qr.make();
   var n = qr.getModuleCount(), c = document.getElementById('qr'), g = c.getContext('2d');
